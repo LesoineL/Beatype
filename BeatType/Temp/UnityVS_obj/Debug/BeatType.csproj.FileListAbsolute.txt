@@ -1,2 +1,19 @@
-Z:\IGMProfile\Desktop\GDD II\BeatType\Temp\UnityVS_obj\Debug\BeatType.csprojResolveAssemblyReference.cache
-Z:\IGMProfile\Desktop\GDD II\BeatType\Temp\UnityVS_obj\Debug\BeatType.csproj.CoreCompileInputs.cache
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_bin\Debug\Assembly-CSharp.dll
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_bin\Debug\Assembly-CSharp.pdb
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_bin\Debug\UnityEditor.dll
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_bin\Debug\UnityEngine.Analytics.dll
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_bin\Debug\UnityEngine.dll
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_bin\Debug\UnityEngine.HoloLens.dll
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_bin\Debug\UnityEngine.Networking.dll
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_bin\Debug\UnityEngine.UI.dll
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_bin\Debug\UnityEngine.VR.dll
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_bin\Debug\UnityEngine.xml
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_bin\Debug\UnityEngine.UI.xml
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_bin\Debug\UnityEngine.Networking.xml
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_bin\Debug\UnityEngine.Analytics.xml
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_bin\Debug\UnityEngine.HoloLens.xml
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_bin\Debug\UnityEngine.VR.xml
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_bin\Debug\UnityEditor.xml
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_obj\Debug\BeatType.csprojResolveAssemblyReference.cache
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_obj\Debug\Assembly-CSharp.dll
+C:\Users\Andrew\Documents\Beatype\BeatType\Temp\UnityVS_obj\Debug\Assembly-CSharp.pdb
