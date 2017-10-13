@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class MenuScript : MonoBehaviour
 {
-    //Toggleable states between a "Press Start" prompt, and the actual menu
-    public enum MenuState { startPrompt, menu   };
+    //Toggleable states between a "Press Start" prompt, the main menu, the options menu, and the credits
+    public enum MenuState { startPrompt, menu, options, credits   };
     public MenuState currentMenu;
 
     //Sprite object for the start prompt
@@ -18,21 +18,36 @@ public class MenuScript : MonoBehaviour
     {
         //Scene initializes with the start prompt
         currentMenu = MenuState.startPrompt;
+        Instantiate(startPrompt);
 	}
 	
 	// Update is called once per frame
 	void Update ()
     {
-	    if(currentMenu == MenuState.startPrompt)
+        //Replaces the start prompt with the menu whenever any input is received
+        if (currentMenu == MenuState.startPrompt && Input.anyKeyDown)
         {
-            Instantiate(startPrompt);
-            Destroy(GameObject.Find("Menu Buttons"));
+            currentMenu = MenuState.menu;
+            Instantiate(menuButtons);
+            Destroy(GameObject.Find("StartPrompt(Clone)"));
         }
 
-        if(currentMenu == MenuState.menu)
+        //Returns the menu to the start prompt whenever the escape key is hit
+        if (currentMenu == MenuState.menu && Input.GetKeyDown(KeyCode.Escape))
         {
-            Instantiate(menuButtons);
-            Destroy(GameObject.Find("Start Prompt"));
+            currentMenu = MenuState.startPrompt;
+            Instantiate(startPrompt);
+            Destroy(GameObject.Find("MenuButtons(Clone)"));
+        }
+
+        if (currentMenu == MenuState.options)
+        {
+
+        }
+
+        if (currentMenu == MenuState.credits)
+        {
+
         }
 	}
 }

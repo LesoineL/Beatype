@@ -1,2 +1,0 @@
-Z:\IGMProfile\Desktop\GDD II\BeatType\Temp\UnityVS_obj\Debug\BeatType.csprojResolveAssemblyReference.cache
-Z:\IGMProfile\Desktop\GDD II\BeatType\Temp\UnityVS_obj\Debug\BeatType.csproj.CoreCompileInputs.cache
