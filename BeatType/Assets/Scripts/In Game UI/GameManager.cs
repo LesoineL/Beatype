@@ -95,13 +95,15 @@ public class GameManager : MonoBehaviour {
             if (Input.GetKeyDown("" + keys[i])) {
                 
                 Debug.Log(keys[i]);
-                if (beat > 3 && keys[i] == beatmap[beat - 3] && hitCurBeat == false) {
-                    hitCurBeat = true;
-                    score++;
-                    Debug.LogWarning("Hit! Score: " + score);
-                    UICircle.GetComponent<Image>().color = Color.green;
-                    if (hitCurBeat) {
-                        playAudio.Play();
+                if (beat > 3 && hitCurBeat == false) {
+                    if ((keys[i] == beatmap[beat - 3] || keys[i] == beatmap[beat - 4])) {
+                        hitCurBeat = true;
+                        score++;
+                        Debug.LogWarning("Hit! Score: " + score);
+                        UICircle.GetComponent<Image>().color = Color.green;
+                        if (hitCurBeat) {
+                            playAudio.Play();
+                        }
                     }
                 }
             }
