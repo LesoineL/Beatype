@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
@@ -10,7 +10,9 @@ public class AudioManager : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        playAudio = GetComponent<AudioSource>();
+	// make sure when you attach this script the obj has a AudioSource Component. 
+	// Dont need to do anything to the AudioSource Component. Just have one.
+        playAudio = GetComponent<AudioSource>(); 
     }
 	
 	// Update is called once per frame
