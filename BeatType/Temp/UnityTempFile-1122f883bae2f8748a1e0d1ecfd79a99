@@ -13,8 +13,6 @@
 -r:"C:/Program Files/UnityOther/Editor/Data/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor/UnityEngine.HoloLens.dll"
 -r:"C:/Program Files/UnityOther/Editor/Data/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll"
 -r:"C:/Program Files/UnityOther/Editor/Data/Managed/UnityEditor.dll"
--r:"C:/Program Files/UnityOther/Editor/Data/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll"
--r:"C:/Program Files/UnityOther/Editor/Data/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Common.dll"
 -define:UNITY_5_3_OR_NEWER
 -define:UNITY_5_4_OR_NEWER
 -define:UNITY_5_5_OR_NEWER
@@ -86,6 +84,7 @@
 -define:UNITY_EDITOR_WIN
 -define:ENABLE_NATIVE_ARRAY_CHECKS
 -define:ENABLE_VSTU
+Assets/Scripts/ComboManager.cs
 "Assets/Scripts/In Game UI/InputHandler.cs"
 Assets/Scripts/MenuScript.cs
 -r:"C:\Program Files\UnityOther\Editor\Data\Mono\lib\mono\unity\System.Runtime.Serialization.dll"
