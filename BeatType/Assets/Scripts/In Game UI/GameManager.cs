@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour {
 
     public GameObject CirclePrefab;
     public RectTransform UICircle;
+
+    ComboManager cManager;
     
     //beats per minute for the current map
     float BPM;
@@ -27,7 +29,7 @@ public class GameManager : MonoBehaviour {
     //alphabet for looping through input
     char[] keys = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
     //live beatmap
-    char[] beatmap = { 'a', 'b', 'c', '-'};
+    char[] beatmap = { 'a', 'b', 'c', '-', 'o', 'n', 'e', '-', 't', 'w', 'o'};
 
     //screen dimensions
     float screenWidth;
@@ -57,6 +59,8 @@ public class GameManager : MonoBehaviour {
         audio1 = (AudioClip)Resources.Load("Sounds/Test/1");
         playAudio.GetComponent<AudioSource>().clip = audio1;
 
+        cManager = GetComponent<ComboManager>();
+
         screenWidth = mainCamera.pixelWidth;
         screenHeight = mainCamera.pixelHeight;
         spawnLocation = new Vector2(screenWidth / 2 * 1.2f, 0f);
@@ -69,7 +73,8 @@ public class GameManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         beatTimer += Time.deltaTime;
-        
+        cManager.BeatHit = false;
+
         //move circles
         foreach (RectTransform t in hitCircles) {
             t.anchoredPosition -= new Vector2(Time.deltaTime * speed, 0f);
@@ -94,6 +99,7 @@ public class GameManager : MonoBehaviour {
                 }
             }
             hitCurBeat = false;
+            
             beat++;
 
             //Debug.Log(beatmap[beat]);
@@ -113,6 +119,7 @@ public class GameManager : MonoBehaviour {
                 if (beat >= beatsAcrossScreen && hitCurBeat == false) {
                     if ((keys[i] == beatmap[beat - beatsAcrossScreen - 1] || keys[i] == beatmap[beat - beatsAcrossScreen])) {
                         hitCurBeat = true;
+                        cManager.BeatHit = true;
                         score++;
                         //turn UI circle green on hit
                         UICircle.GetComponent<Image>().color = Color.green;
@@ -134,5 +141,14 @@ public class GameManager : MonoBehaviour {
         } else {
             UICircle.GetComponent<Image>().color = Color.white;
         }
+
+        //Check for combo
+        cManager.checkCombo();
+        //Check combo if there is currently a beat
+        /*if()
+        {
+            //Check for combo
+            cManager.checkCombo();
+        }*/
     }
 }

@@ -25,6 +25,11 @@ public class ComboManager : MonoBehaviour
         get { return comboCount; }
     }
 
+    public float BPM
+    {
+        set { bpm = value; }
+    }
+
 	// Use this for initialization
 	void Start ()
     {
@@ -32,36 +37,31 @@ public class ComboManager : MonoBehaviour
         timeFromLastNote = 0.0f;
         avgTime = 60.0f / bpm;
         beatHit = false;
-        Debug.Log(avgTime);
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
-        beatHit = false;
+        //beatHit = false;
         timeFromLastNote += Time.deltaTime;
-        
-        //Temp to test combos
-        if (Input.anyKeyDown)
-        {
-            beatHit = true;
-        }
 
         //Checks to see if the user made the combo
-        checkCombo();
+        //checkCombo();
 	}
 
     //Checks to see if the combo needs to be updated
-    void checkCombo()
+    public void checkCombo()
     {
+        
         //Check if missed note
-        if(timeFromLastNote > avgTime + extraTimeBuffer)
+        if(timeFromLastNote > avgTime + extraTimeBuffer && comboCount > 1)
         {
             //Lose combo and reset timeFromLastNote
             comboCount = 0;
             timeFromLastNote = 0.0f;
-            Debug.Log("lost combo");
+            Debug.Log("lost combo");  //temporary log until UI is in place
         }
+        //Check if they are within the time range for the note
         else if(beatHit == true && (timeFromLastNote >= avgTime - extraTimeBuffer && timeFromLastNote <= avgTime + extraTimeBuffer))
         {
             //Increase combo and reset timeFromLastNote
@@ -74,5 +74,6 @@ public class ComboManager : MonoBehaviour
                 Debug.Log("Combo + " + comboCount);  //temporary log until UI is in place
             }
         }
+        
     }
 }
