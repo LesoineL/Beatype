@@ -19,17 +19,20 @@ public class GameManager : MonoBehaviour {
     ComboManager cManager;
     
     //beats per minute for the current map
-    float BPM;
+    public float BPM;
     
     //the beat of the music we're on
     int beat;
     //timer for each individual beat
     float beatTimer;
 
+    //Time range allowed to count a beat hit
+    public float timeAcc;
+
     //alphabet for looping through input
     char[] keys = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
     //live beatmap
-    char[] beatmap = { 'a', 'b', 'c', '-', 'o', 'n', 'e', '-', 't', 'w', 'o'};
+    char[] beatmap = { 'a', 'b', 'c', '-', 'o', 'n', 'e', '-', 't', 'w', 'o', '-', 't', 'h', 'r', 'e', 'e' };
 
     //screen dimensions
     float screenWidth;
@@ -52,9 +55,21 @@ public class GameManager : MonoBehaviour {
     // Use this for initialization
     void Start () {
         //temp
-        BPM = 120;
+        //BPM = 120;
         beat = 0;
         beatTimer = 0;
+
+        //If a nonsensical BPM is given, auto set to 120
+        if(BPM <= 0)
+        {
+            BPM = 120;
+        }
+
+        //If a garbage time range was given just set it to a quarter of the beat speed
+        if(timeAcc <= 0.0f)
+        {
+            timeAcc = 60.0f / (BPM * 4.0f);
+        }
 
         audio1 = (AudioClip)Resources.Load("Sounds/Test/1");
         playAudio.GetComponent<AudioSource>().clip = audio1;
@@ -119,7 +134,6 @@ public class GameManager : MonoBehaviour {
                 if (beat >= beatsAcrossScreen && hitCurBeat == false) {
                     if ((keys[i] == beatmap[beat - beatsAcrossScreen - 1] || keys[i] == beatmap[beat - beatsAcrossScreen])) {
                         hitCurBeat = true;
-                        cManager.BeatHit = true;
                         score++;
                         //turn UI circle green on hit
                         UICircle.GetComponent<Image>().color = Color.green;
@@ -142,13 +156,26 @@ public class GameManager : MonoBehaviour {
             UICircle.GetComponent<Image>().color = Color.white;
         }
 
-        //Check for combo
-        cManager.checkCombo();
-        //Check combo if there is currently a beat
-        /*if()
+        //Check the accuracy
+        if(CheckAccuracy())
         {
+            cManager.BeatHit = true;
+
             //Check for combo
             cManager.checkCombo();
-        }*/
+        }
+    }
+
+    //Method for checking the time accuracy for hitting the notes
+    bool CheckAccuracy()
+    {
+        //If beat is hit within the time range, return true
+        if(hitCurBeat && (beatTimer <= (60f / BPM) - (timeAcc / 2.0f) || beatTimer >= 0 + (timeAcc / 2.0f)))
+        {
+            return true;
+        }
+
+        //If out of time period, return false
+        return false;
     }
 }
