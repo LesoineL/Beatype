@@ -16,7 +16,7 @@ public class Manager : MonoBehaviour
     //Offsets used in placement of beats
     float xOffset;
     float yOffset;
-    Vector2 spawnLocation;  //Spawn location of the notes
+    Hashtable keySpawns;  //Key and spawn location
     int score;  //Current score (seperate from the combo)
     //screen dimensions
     float screenWidth;
@@ -81,9 +81,18 @@ public class Manager : MonoBehaviour
         yOffset = 5.0f;  //Dummy number for now
         xOffset = 5.0f;  //Dummy number for now
 
+        keySpawns = new Hashtable();
+
+        for(int i = 0; i < 9; i++)
+        {
+            keySpawns.Add(i + 1, new Vector3());
+        }
+
+
+
         if (beatmap.Length > 0)  //Make sure there are notes
         {
-            nextBeat = beatmap[0];
+            nextBeat = 0;
         }
 
         //Get the screen dimensions
@@ -120,9 +129,12 @@ public class Manager : MonoBehaviour
                 spawnTimer -= 60.0f / bpm;
 
                 //Make sure the next beat isn't empty
-                if(nextBeat != '-')
+                if(nextBeat < beatmap.Length)
                 {
-                    spawnBeat(beatmap[nextBeat]);
+                    if (nextBeat != '-')
+                    {
+                        spawnBeat(beatmap[nextBeat]);
+                    }
                 }
             }
 
@@ -254,7 +266,8 @@ public class Manager : MonoBehaviour
             GameObject newTarget = GameObject.Instantiate(CirclePrefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
             newTarget.transform.SetParent(canvas.transform, false);
             //Move the object to a starting position based upon it's number
-            newTarget.transform.position = new Vector3((screenWidth / 10.0f) * distance - xOffset, screenHeight + yOffset, 0.0f);  //Final values changable
+            Vector3 spawnLoc = new Vector3(((screenWidth / 10.0f) * distance) - xOffset, screenHeight + yOffset, 0.0f);
+            newTarget.transform.position = mainCamera.ScreenToWorldPoint(spawnLoc);//Final values changable
             newTarget.transform.GetChild(0).GetComponent<Text>().text = number.ToString().ToUpper();
         }
     }
