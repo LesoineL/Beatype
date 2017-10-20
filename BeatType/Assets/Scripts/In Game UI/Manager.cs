@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Manager : MonoBehaviour
 {
@@ -8,10 +9,13 @@ public class Manager : MonoBehaviour
     //-----Variables------
     int comboCount;
     float timeFromLastNote;
-    float avgTime;
+    float spawnTimer;
     bool beatHit;
     public float bpm;  //Beats per minute
     float beatSpeed;  //Speed the notes travel along the screen
+    //Offsets used in placement of beats
+    float xOffset;
+    float yOffset;
     Vector2 spawnLocation;  //Spawn location of the notes
     int score;  //Current score (seperate from the combo)
     //screen dimensions
@@ -51,7 +55,8 @@ public class Manager : MonoBehaviour
     enum gameState
     {
         Paused,
-        InGame
+        InGame,
+        GameEnd
     }
 
     gameState currState;
@@ -72,13 +77,21 @@ public class Manager : MonoBehaviour
         comboCount = 0;
         beatHit = false;
         score = 0;
-        if(beatmap.Length > 0)  //Make sure there are notes
+        //Offsets used in placement of beats
+        yOffset = 5.0f;  //Dummy number for now
+        xOffset = 5.0f;  //Dummy number for now
+
+        if (beatmap.Length > 0)  //Make sure there are notes
         {
             nextBeat = beatmap[0];
         }
+
         //Get the screen dimensions
         screenWidth = mainCamera.pixelWidth;
         screenHeight = mainCamera.pixelHeight;
+
+        //Set the beatSpeed
+        beatSpeed = (screenHeight + yOffset) / (60.0f / bpm);
 
         //Set the initial state to InGame
         currState = gameState.InGame;
@@ -98,8 +111,30 @@ public class Manager : MonoBehaviour
                 return;
             }
 
+            //Increment the spawn timer
+            spawnTimer += Time.deltaTime;
+
+            //Check to see if another beat needs to be spawned
+            if(spawnTimer >= 60.0f / bpm)
+            {
+                spawnTimer -= 60.0f / bpm;
+
+                //Make sure the next beat isn't empty
+                if(nextBeat != '-')
+                {
+                    spawnBeat(beatmap[nextBeat]);
+                }
+            }
+
+            //Move circles
+            foreach (RectTransform t in hitCircles)
+            {
+                //t.anchoredPosition -= new Vector2(Time.deltaTime * speed, 0f);
+                t.anchoredPosition -= new Vector2(0.0f, Time.deltaTime);
+            }
+
             //Check if a beat was missed
-            if(missedBeat())
+            if (missedBeat())
             {
                 beatHit = false;
 
@@ -110,17 +145,20 @@ public class Manager : MonoBehaviour
                 nextBeat++;
             }
 
-            //Check if there is a beat to be hit
-            if (checkRange(hitCircles[nextBeat]))
+            if(nextBeat < hitCircles.Count)
             {
-                //Check if a key is pressed
-                if (Input.anyKeyDown)
-                { 
-                    //Check if the key pressed matches
-                    if (Input.GetKeyDown("" + beatmap[nextBeat]))
+                //Check if there is a beat to be hit
+                if (checkRange(hitCircles[nextBeat]))
+                {
+                    //Check if a key is pressed
+                    if (Input.anyKeyDown)
                     {
-                        beatHit = true;
-                        updateCombo();
+                        //Check if the key pressed matches
+                        if (Input.GetKeyDown("Alpha" + beatmap[nextBeat]))
+                        {
+                            beatHit = true;
+                            updateCombo();
+                        }
                     }
                 }
             }
@@ -136,10 +174,14 @@ public class Manager : MonoBehaviour
                 return;
             }
         }
+        //-----Song Ended-----
+        else if(currState == gameState.GameEnd)
+        {
+            //TODO--song end screen & return to main?
+        }
 	}
 
     //-----Helper Methods-----
-
     void updateCombo()  //Updates the current combo
     {
         //Check if the beat was hit
@@ -189,5 +231,31 @@ public class Manager : MonoBehaviour
         }
 
         return false;
+    }
+
+    void spawnBeat(char number)  //Spawns a beat labeled with the specified number
+    {
+        //Make sure it is a valid value
+        if(number != '-')
+        {
+            //Distance from x=0 to spawn the object
+            int distance = 0;
+
+            if(number != '0')
+            {
+                distance = number;
+            }
+            else
+            {
+                distance = 10;
+            } 
+
+            //Instantiate a new object
+            GameObject newTarget = GameObject.Instantiate(CirclePrefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
+            newTarget.transform.SetParent(canvas.transform, false);
+            //Move the object to a starting position based upon it's number
+            newTarget.transform.position = new Vector3((screenWidth / 10.0f) * distance - xOffset, screenHeight + yOffset, 0.0f);  //Final values changable
+            newTarget.transform.GetChild(0).GetComponent<Text>().text = number.ToString().ToUpper();
+        }
     }
 }
