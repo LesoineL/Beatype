@@ -42,7 +42,7 @@ public class MenuScript : MonoBehaviour
 
         if (currentMenu == MenuState.options)
         {
-
+            Destroy(GameObject.Find("MenuButtons(Clone)"));
         }
 
         if (currentMenu == MenuState.credits)
