@@ -36,9 +36,9 @@ public class Manager : MonoBehaviour
     public RectTransform UICircle;
 
     //alphabet for looping through input
-    char[] keys = { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' };
+    int[] keys = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
     //live beatmap
-    char[] beatmap = { '1', '1', '4', '9', '-', '-', '7', '-', '8', '6' };
+    int[] beatmap = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
 
     //Temporary integer for traversing the beatmap array
     //CHANGE when destroying objects is implemented as this will affect hitCircles
@@ -81,23 +81,25 @@ public class Manager : MonoBehaviour
         yOffset = 5.0f;  //Dummy number for now
         xOffset = 5.0f;  //Dummy number for now
 
+        //Get the screen dimensions
+        screenWidth = mainCamera.pixelWidth;
+        screenHeight = mainCamera.pixelHeight;
+
+        //Create a new hashtable for each possible key and it's spawn location
         keySpawns = new Hashtable();
 
-        for(int i = 0; i < 9; i++)
+        for (int i = 0; i < 9; i++)
         {
-            keySpawns.Add(i + 1, new Vector3());
+            //1 - 9 keys
+            keySpawns.Add(i + 1, new Vector3((i * 2) - xOffset, yOffset + i, 0.0f));
         }
-
-
+        //Add the 0 key
+        keySpawns.Add(0, new Vector3((screenWidth / 11.0f) * 10 - xOffset, screenHeight + yOffset, 0.0f));
 
         if (beatmap.Length > 0)  //Make sure there are notes
         {
             nextBeat = 0;
         }
-
-        //Get the screen dimensions
-        screenWidth = mainCamera.pixelWidth;
-        screenHeight = mainCamera.pixelHeight;
 
         //Set the beatSpeed
         beatSpeed = (screenHeight + yOffset) / (60.0f / bpm);
@@ -112,6 +114,7 @@ public class Manager : MonoBehaviour
         //-----InGame-----
         if(currState == gameState.InGame)
         {
+            
             //Check if the user is pausing the game
             if (Input.GetKeyUp(KeyCode.Space)) //Space for now due to easy reachability
             {
@@ -129,9 +132,10 @@ public class Manager : MonoBehaviour
                 spawnTimer -= 60.0f / bpm;
 
                 //Make sure the next beat isn't empty
-                if(nextBeat < beatmap.Length)
+                if (nextBeat < beatmap.Length)
                 {
-                    if (nextBeat != '-')
+                   
+                    if (nextBeat != -1)
                     {
                         spawnBeat(beatmap[nextBeat]);
                     }
@@ -142,7 +146,7 @@ public class Manager : MonoBehaviour
             foreach (RectTransform t in hitCircles)
             {
                 //t.anchoredPosition -= new Vector2(Time.deltaTime * speed, 0f);
-                t.anchoredPosition -= new Vector2(0.0f, Time.deltaTime);
+                t.anchoredPosition -= new Vector2(0.0f, Time.deltaTime * 2.0f);
             }
 
             //Check if a beat was missed
@@ -157,6 +161,7 @@ public class Manager : MonoBehaviour
                 nextBeat++;
             }
 
+            //Make sure that there is a next beat
             if(nextBeat < hitCircles.Count)
             {
                 //Check if there is a beat to be hit
@@ -174,6 +179,11 @@ public class Manager : MonoBehaviour
                     }
                 }
             }
+            //If no more beats, the game is over
+            /*else
+            {
+                currState = gameState.GameEnd;
+            }*/
         }
         //-----Pause Menu-----
         else if(currState == gameState.Paused)
@@ -245,30 +255,16 @@ public class Manager : MonoBehaviour
         return false;
     }
 
-    void spawnBeat(char number)  //Spawns a beat labeled with the specified number
+    void spawnBeat(int number)  //Spawns a beat labeled with the specified number
     {
         //Make sure it is a valid value
-        if(number != '-')
+        if(number != -1)
         {
-            //Distance from x=0 to spawn the object
-            int distance = 0;
-
-            if(number != '0')
-            {
-                distance = number;
-            }
-            else
-            {
-                distance = 10;
-            } 
-
             //Instantiate a new object
-            GameObject newTarget = GameObject.Instantiate(CirclePrefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
-            newTarget.transform.SetParent(canvas.transform, false);
-            //Move the object to a starting position based upon it's number
-            Vector3 spawnLoc = new Vector3(((screenWidth / 10.0f) * distance) - xOffset, screenHeight + yOffset, 0.0f);
-            newTarget.transform.position = mainCamera.ScreenToWorldPoint(spawnLoc);//Final values changable
-            newTarget.transform.GetChild(0).GetComponent<Text>().text = number.ToString().ToUpper();
+            //GameObject newTarget = GameObject.Instantiate(GameObject.CreatePrimitive(PrimitiveType.Sphere, (Vector3)keySpawns[(int)number], Quaternion.identity) as GameObject;
+            GameObject newTarget = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            newTarget.transform.position = (Vector3)keySpawns[number];
+            Debug.Log("Circle made at: " + (Vector3)keySpawns[(int)number]);
         }
     }
 }
