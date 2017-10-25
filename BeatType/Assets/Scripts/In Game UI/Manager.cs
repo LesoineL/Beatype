@@ -94,15 +94,16 @@ public class Manager : MonoBehaviour
             spawnX = mainCamera.ScreenToViewportPoint(spawnX);
 
             keySpawns.Add(i + 1, new Vector3((spawnX.x * spacing * i)  - xOffset, yOffset, 0.0f));
-            spawnBeat(beatmap[i]);
 
             //Add the 0 key
             if (i == 8)
             {
+                spawnBeat(beatmap[i]); // spawn beat 8 then do 0
                 i++;              
-                keySpawns.Add(0, new Vector3((spawnX.x * spacing * i) - xOffset, yOffset, 0.0f));
-                spawnBeat(beatmap[i]);
+                keySpawns.Add(0, new Vector3((spawnX.x * spacing * i) - xOffset, yOffset, 0.0f));              
             }
+
+            spawnBeat(beatmap[i]);
         }
 
         //Set the initial state to InGame
