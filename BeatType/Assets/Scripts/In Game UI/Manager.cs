@@ -11,13 +11,15 @@ public class Manager : MonoBehaviour
     float timeFromLastNote;
     float spawnTimer;
     bool beatHit;
-    public float bpm;  //Beats per minute
-    float beatSpeed;  //Speed the notes travel along the screen
+    float spacing;  // spacing of note spawning 
+
     //Offsets used in placement of beats
     float xOffset;
-    float yOffset;
-    Hashtable keySpawns;  //Key and spawn location
+    float yOffset; 
+
+    Dictionary<int, Vector3> keySpawns;  //Key and spawn location
     int score;  //Current score (seperate from the combo)
+
     //screen dimensions
     float screenWidth;
     float screenHeight;
@@ -66,52 +68,42 @@ public class Manager : MonoBehaviour
 
     // Use this for initialization
     void Start ()
-    {
-		//Check public values
-        if(bpm <= 0)  //If bpm is given a garbage value, set to 120
-        {
-            bpm = 120;
-        }
-
-        //Get a reference to the audio manager
-        aManager = GetComponent<AudioManager>();
+    {       
+        aManager = GetComponent<AudioManager>(); //Get a reference to the audio manager
+        nextBeat = 0; 
 
         //initialize other variables
         comboCount = 0;
         beatHit = false;
         score = 0;
-        //Offsets used in placement of beats
-        yOffset = 5.0f;  //Dummy number for now
-        xOffset = 10.0f;  //Dummy number for now
+
+        xOffset = 9.425f; // used for aligning spawned beat, the higher the more to the left all the notes will be
+        yOffset = 6.0f; // how high the beats spawn
+        spacing = 2.1f; // space between each beat horizontally 
 
         //Get the screen dimensions
         screenWidth = mainCamera.pixelWidth;
         screenHeight = mainCamera.pixelHeight;
 
-        Debug.Log(screenWidth);
+        keySpawns = new Dictionary<int, Vector3>(); //Create a new hashtable for each possible key and it's spawn location
 
-        //Create a new hashtable for each possible key and it's spawn location
-        keySpawns = new Hashtable();
-
-        for (int i = 0; i < 9; i++)
+        for (int i = 0; i < 9; i++)  // note this will have to be in update when we do actual songs. 
         {
             //1 - 9 keys
             Vector3 spawnX = new Vector3(screenWidth, 0.0f, 0.0f);
             spawnX = mainCamera.ScreenToViewportPoint(spawnX);
 
-            //keySpawns.Add(i + 1, new Vector3((screenWidth / 11.0f) * i - xOffset, yOffset + i, 0.0f));
-            keySpawns.Add(i + 1, new Vector3((spawnX.x * i)  - xOffset, yOffset + i, 0.0f));
-        }
-        //Add the 0 key
-        keySpawns.Add(0, new Vector3((screenWidth / 11.0f) * 10 - xOffset, screenHeight + yOffset, 0.0f));
+            keySpawns.Add(i + 1, new Vector3((spawnX.x * spacing * i)  - xOffset, yOffset, 0.0f));
+            spawnBeat(beatmap[i]);
 
-        if (beatmap.Length > 0)  //Make sure there are notes
-        {
-            nextBeat = 0;
+            //Add the 0 key
+            if (i == 8)
+            {
+                i++;              
+                keySpawns.Add(0, new Vector3((spawnX.x * spacing * i) - xOffset, yOffset, 0.0f));
+                spawnBeat(beatmap[i]);
+            }
         }
-
-        //Set the beatSpeed
-        beatSpeed = (screenHeight + yOffset) / (60.0f / bpm);
 
         //Set the initial state to InGame
         currState = gameState.InGame;
@@ -122,34 +114,9 @@ public class Manager : MonoBehaviour
     {
         //-----InGame-----
         if(currState == gameState.InGame)
-        {
-            
-            //Check if the user is pausing the game
-            if (Input.GetKeyUp(KeyCode.Space)) //Space for now due to easy reachability
-            {
-                currState = gameState.Paused;
-                Debug.Log("PAUSED");
-                return;
-            }
-
+        {         
             //Increment the spawn timer
             spawnTimer += Time.deltaTime;
-
-            //Check to see if another beat needs to be spawned
-            if(spawnTimer >= 60.0f / bpm)
-            {
-                spawnTimer -= 60.0f / bpm;
-
-                //Make sure the next beat isn't empty
-                if (nextBeat < beatmap.Length)
-                {
-                   
-                    if (nextBeat != -1)
-                    {
-                        spawnBeat(beatmap[nextBeat]);
-                    }
-                }
-            }
 
             //Move circles
             foreach (GameObject t in hitItems)
@@ -187,12 +154,22 @@ public class Manager : MonoBehaviour
                     }
                 }
             }
-            //If no more beats, the game is over
-            /*else
+
+            //If no more beats
+            //else
+            //{
+            //    currState = gameState.GameEnd;
+            //}
+
+            //pause
+            if (Input.GetKeyUp(KeyCode.Space))
             {
-                currState = gameState.GameEnd;
-            }*/
-        }
+                currState = gameState.Paused;
+                return;
+            }
+
+        } // in game end bracket 
+
         //-----Pause Menu-----
         else if(currState == gameState.Paused)
         {
@@ -200,16 +177,17 @@ public class Manager : MonoBehaviour
             if (Input.GetKeyUp(KeyCode.Space)) //Space for now due to easy reachability
             {
                 currState = gameState.InGame;
-                Debug.Log("UNPAUSED");
                 return;
             }
         }
+
         //-----Song Ended-----
         else if(currState == gameState.GameEnd)
         {
             //TODO--song end screen & return to main?
-        }
-	}
+        }  
+
+    } // Update end bracket 
 
     //-----Helper Methods-----
     void updateCombo()  //Updates the current combo
@@ -238,7 +216,6 @@ public class Manager : MonoBehaviour
 
     bool checkRange(GameObject beat)  //Checks if a beat can be hit
     {
-        //Check if anything is in range
         //temporary range is the bottom 1/4 of the screen to the bottom 1/6
         if(beat.transform.position.y > (screenHeight / 6.0f) && beat.transform.position.y < (screenHeight / 4.0f))
         {
