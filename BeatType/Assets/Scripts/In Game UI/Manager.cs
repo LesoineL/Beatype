@@ -44,9 +44,12 @@ public class Manager : MonoBehaviour
     //CHANGE when destroying objects is implemented as this will affect hitCircles
     int nextBeat;
 
+    int beatsOnScreen;
+
     //defines how many beats it takes circles to move across the entire screen, use this to adjust circle speed
     public int beatsAcrossScreen;
-    List<RectTransform> hitCircles = new List<RectTransform>();
+    //List<RectTransform> hitCircles = new List<RectTransform>();
+    List<GameObject> hitItems = new List<GameObject>();
 
     //timer for green on beat hit
     float hitTimer;
@@ -79,11 +82,13 @@ public class Manager : MonoBehaviour
         score = 0;
         //Offsets used in placement of beats
         yOffset = 5.0f;  //Dummy number for now
-        xOffset = 5.0f;  //Dummy number for now
+        xOffset = 10.0f;  //Dummy number for now
 
         //Get the screen dimensions
         screenWidth = mainCamera.pixelWidth;
         screenHeight = mainCamera.pixelHeight;
+
+        Debug.Log(screenWidth);
 
         //Create a new hashtable for each possible key and it's spawn location
         keySpawns = new Hashtable();
@@ -91,7 +96,11 @@ public class Manager : MonoBehaviour
         for (int i = 0; i < 9; i++)
         {
             //1 - 9 keys
-            keySpawns.Add(i + 1, new Vector3((i * 2) - xOffset, yOffset + i, 0.0f));
+            Vector3 spawnX = new Vector3(screenWidth, 0.0f, 0.0f);
+            spawnX = mainCamera.ScreenToViewportPoint(spawnX);
+
+            //keySpawns.Add(i + 1, new Vector3((screenWidth / 11.0f) * i - xOffset, yOffset + i, 0.0f));
+            keySpawns.Add(i + 1, new Vector3((spawnX.x * i)  - xOffset, yOffset + i, 0.0f));
         }
         //Add the 0 key
         keySpawns.Add(0, new Vector3((screenWidth / 11.0f) * 10 - xOffset, screenHeight + yOffset, 0.0f));
@@ -143,10 +152,9 @@ public class Manager : MonoBehaviour
             }
 
             //Move circles
-            foreach (RectTransform t in hitCircles)
+            foreach (GameObject t in hitItems)
             {
-                //t.anchoredPosition -= new Vector2(Time.deltaTime * speed, 0f);
-                t.anchoredPosition -= new Vector2(0.0f, Time.deltaTime * 2.0f);
+                t.transform.position = new Vector3(t.transform.position.x, t.transform.position.y - Time.deltaTime * 2.0f, 0.0f);
             }
 
             //Check if a beat was missed
@@ -162,10 +170,10 @@ public class Manager : MonoBehaviour
             }
 
             //Make sure that there is a next beat
-            if(nextBeat < hitCircles.Count)
+            if(nextBeat < hitItems.Count)
             {
                 //Check if there is a beat to be hit
-                if (checkRange(hitCircles[nextBeat]))
+                if (checkRange(hitItems[nextBeat]))
                 {
                     //Check if a key is pressed
                     if (Input.anyKeyDown)
@@ -228,11 +236,11 @@ public class Manager : MonoBehaviour
         }
     }
 
-    bool checkRange(RectTransform beat)  //Checks if a beat can be hit
+    bool checkRange(GameObject beat)  //Checks if a beat can be hit
     {
         //Check if anything is in range
         //temporary range is the bottom 1/4 of the screen to the bottom 1/6
-        if(beat.position.y > (screenHeight / 6.0f) && beat.position.y < (screenHeight / 4.0f))
+        if(beat.transform.position.y > (screenHeight / 6.0f) && beat.transform.position.y < (screenHeight / 4.0f))
         {
             return true;
         }
@@ -243,10 +251,10 @@ public class Manager : MonoBehaviour
     bool missedBeat()  //Checks if any beats were missed
     {
         //Loop through each necessary RectTransform in hitCircles
-        for(int i = nextBeat; i < hitCircles.Count; i++)
+        for(int i = nextBeat; i < hitItems.Count; i++)
         {
             //Check to see if it past the allotted range for being hit
-            if(hitCircles[i].position.y < (screenHeight / 6.0f))
+            if(hitItems[i].transform.position.y < (screenHeight / 6.0f))
             {
                 return true;
             }
@@ -264,6 +272,7 @@ public class Manager : MonoBehaviour
             //GameObject newTarget = GameObject.Instantiate(GameObject.CreatePrimitive(PrimitiveType.Sphere, (Vector3)keySpawns[(int)number], Quaternion.identity) as GameObject;
             GameObject newTarget = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             newTarget.transform.position = (Vector3)keySpawns[number];
+            hitItems.Add(newTarget);
             Debug.Log("Circle made at: " + (Vector3)keySpawns[(int)number]);
         }
     }
