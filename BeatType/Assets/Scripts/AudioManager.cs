@@ -12,7 +12,8 @@ public class AudioManager : MonoBehaviour {
     void Start () {
 	// make sure when you attach this script the obj has a AudioSource Component. 
 	// Dont need to do anything to the AudioSource Component. Just have one.
-        playAudio = GetComponent<AudioSource>(); 
+        playAudio = GetComponent<AudioSource>();
+        playAudio.clip = null; // Makes sure you set a song to play. 
     }
 	
 	// Update is called once per frame
@@ -33,8 +34,26 @@ public class AudioManager : MonoBehaviour {
         }
     }
 
-    public void playAudioFile(int index) // pass in the int for the array index of the audio file
+    public void setAudioToPlay(int index) // Set the SONG that will be played.
     {
-        playAudio.PlayOneShot(audioFiles[index]);
+        playAudio.clip = audioFiles[index]; 
+    }
+
+    public void playAudioFile() // Play the selected song. 
+    {
+        if (playAudio.clip == null)
+        {
+            Debug.Log("Set an audio clip to play in audio manager. ");
+        }
+        else
+        {
+            playAudio.Play();
+        }
+       
+    }
+
+    public int getCurrentTime() // returns the current playback time of the song in seconds.
+    {
+        return playAudio.timeSamples; 
     }
 }
