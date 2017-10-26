@@ -10,8 +10,12 @@ public class Manager : MonoBehaviour
     int comboCount;
     float timeFromLastNote;
     float spawnTimer;
+    float globalTimer;  //float to hold the total time
     bool beatHit;
     float spacing;  // spacing of note spawning 
+    //World coordinates of the range for hitting a beat
+    Vector3 topLeftRange;
+    Vector3 botRightRange;
 
     //Offsets used in placement of beats
     float xOffset;
@@ -19,10 +23,6 @@ public class Manager : MonoBehaviour
 
     Dictionary<int, Vector3> keySpawns;  //Key and spawn location
     int score;  //Current score (seperate from the combo)
-
-    //screen dimensions
-    float screenWidth;
-    float screenHeight;
 
     //AudioClip audio1;
     //public AudioSource playAudio;
@@ -41,16 +41,19 @@ public class Manager : MonoBehaviour
     int[] keys = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
     //live beatmap
     int[] beatmap = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
+    List<float> beatmapTimes;  //TEMP - time list to create a time distance between notes
 
     //Temporary integer for traversing the beatmap array
     //CHANGE when destroying objects is implemented as this will affect hitCircles
     int nextBeat;
 
+    //TEMP - change if better way of doing traversing found
+    int currentBeat;
+
     int beatsOnScreen;
 
     //defines how many beats it takes circles to move across the entire screen, use this to adjust circle speed
     public int beatsAcrossScreen;
-    //List<RectTransform> hitCircles = new List<RectTransform>();
     List<GameObject> hitItems = new List<GameObject>();
 
     //timer for green on beat hit
@@ -70,40 +73,51 @@ public class Manager : MonoBehaviour
     void Start ()
     {       
         aManager = GetComponent<AudioManager>(); //Get a reference to the audio manager
-        nextBeat = 0; 
+        currentBeat = 0;  //The current beat of focus (the one that is the closest to being hittable)
+        nextBeat = 0;   //The next beat for spawning
 
         //initialize other variables
         comboCount = 0;
         beatHit = false;
         score = 0;
+        //World coordinates of the range for hitting a beat
+        Vector3 topLeftRange = mainCamera.ViewportToWorldPoint(new Vector3(0.0f, 0.5f));
+        Vector3 botRightRange = mainCamera.ViewportToWorldPoint(new Vector3(1.0f, 0.0f));
+
+        //-----IGNORE-----
 
         xOffset = 9.425f; // used for aligning spawned beat, the higher the more to the left all the notes will be
         yOffset = 6.0f; // how high the beats spawn
         spacing = 2.1f; // space between each beat horizontally 
 
-        //Get the screen dimensions
-        screenWidth = mainCamera.pixelWidth;
-        screenHeight = mainCamera.pixelHeight;
+        //----------------
 
-        keySpawns = new Dictionary<int, Vector3>(); //Create a new hashtable for each possible key and it's spawn location
+        keySpawns = new Dictionary<int, Vector3>(); //Create a new dictionary for each possible key and it's spawn location
 
-        for (int i = 0; i < 9; i++)  // note this will have to be in update when we do actual songs. 
+        beatmapTimes = new List<float>();  //Initialize the list for containing the times
+
+        //For loop to set up key spawn locations
+        for (int i = 0; i < 9; i++)
         {
             //1 - 9 keys
-            Vector3 spawnX = new Vector3(screenWidth, 0.0f, 0.0f);
-            spawnX = mainCamera.ScreenToViewportPoint(spawnX);
-
-            keySpawns.Add(i + 1, new Vector3((spawnX.x * spacing * i)  - xOffset, yOffset, 0.0f));
+            //ViewPointToWorld of the spawning location
+            Vector3 spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.091f * (i + 1), 1.1f));
+            keySpawns.Add(i + 1, spawnPoint);
 
             //Add the 0 key
             if (i == 8)
             {
-                spawnBeat(beatmap[i]); // spawn beat 8 then do 0
-                i++;              
-                keySpawns.Add(0, new Vector3((spawnX.x * spacing * i) - xOffset, yOffset, 0.0f));              
+                //Add 8 to the beatmapTimes
+                beatmapTimes.Add(1f * i);
+                //increment i for 0
+                i++;
+                //Change the spawn location to adjust for the new i value
+                spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.091f * (i + 1), 1.1f));      
+                keySpawns.Add(0, spawnPoint);
             }
 
-            spawnBeat(beatmap[i]);
+            //TEMP - spawning is 1 second apart from each other
+            beatmapTimes.Add(1f * i);
         }
 
         //Set the initial state to InGame
@@ -115,9 +129,21 @@ public class Manager : MonoBehaviour
     {
         //-----InGame-----
         if(currState == gameState.InGame)
-        {         
+        {
             //Increment the spawn timer
-            spawnTimer += Time.deltaTime;
+            //spawnTimer += Time.deltaTime;
+
+            //Increment the global timer
+            globalTimer += Time.deltaTime;
+
+            if(nextBeat < beatmap.Length)
+            {
+                if (globalTimer >= beatmapTimes[nextBeat])
+                {
+                    spawnBeat(nextBeat);
+                    nextBeat++;
+                }
+            }
 
             //Move circles
             foreach (GameObject t in hitItems)
@@ -134,22 +160,23 @@ public class Manager : MonoBehaviour
                 updateCombo();
 
                 //change the item to check
-                nextBeat++;
+                currentBeat++;
             }
 
             //Make sure that there is a next beat
-            if(nextBeat < hitItems.Count)
+            if(currentBeat < hitItems.Count)
             {
                 //Check if there is a beat to be hit
-                if (checkRange(hitItems[nextBeat]))
+                if (checkRange(hitItems[currentBeat]))
                 {
                     //Check if a key is pressed
                     if (Input.anyKeyDown)
                     {
                         //Check if the key pressed matches
-                        if (Input.GetKeyDown("Alpha" + beatmap[nextBeat]))
+                        if (Input.GetKeyDown("" + beatmap[currentBeat]))
                         {
                             beatHit = true;
+                            currentBeat++;
                             updateCombo();
                         }
                     }
@@ -206,6 +233,7 @@ public class Manager : MonoBehaviour
                 //Give some feedback
                 Debug.Log("Combo + " + comboCount + "!");
             }
+            Debug.Log("Combo + " + comboCount + "!");
         }
         else
         {
@@ -218,7 +246,7 @@ public class Manager : MonoBehaviour
     bool checkRange(GameObject beat)  //Checks if a beat can be hit
     {
         //temporary range is the bottom 1/4 of the screen to the bottom 1/6
-        if(beat.transform.position.y > (screenHeight / 6.0f) && beat.transform.position.y < (screenHeight / 4.0f))
+        if (beat.transform.position.y > botRightRange.y && beat.transform.position.y < topLeftRange.y)
         {
             return true;
         }
@@ -229,10 +257,10 @@ public class Manager : MonoBehaviour
     bool missedBeat()  //Checks if any beats were missed
     {
         //Loop through each necessary RectTransform in hitCircles
-        for(int i = nextBeat; i < hitItems.Count; i++)
+        for (int i = currentBeat; i < hitItems.Count; i++)
         {
             //Check to see if it past the allotted range for being hit
-            if(hitItems[i].transform.position.y < (screenHeight / 6.0f))
+            if(hitItems[i].transform.position.y < botRightRange.y)
             {
                 return true;
             }
