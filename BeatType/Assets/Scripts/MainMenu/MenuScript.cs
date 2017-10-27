@@ -5,13 +5,15 @@ using UnityEngine;
 public class MenuScript : MonoBehaviour
 {
     //Toggleable states between a "Press Start" prompt, the main menu, the options menu, and the credits
-    public enum MenuState { startPrompt, menu, options, credits   };
+    public enum MenuState { startPrompt, menu, options, credits, quit   };
     public MenuState currentMenu;
 
     //Sprite object for the start prompt
     public GameObject startPrompt;
     //Sprite object for the menu buttons
     public GameObject menuButtons;
+    //Sprite object for the quit prompt
+    public GameObject quitPrompt;
 
 	// Use this for initialization
 	void Start ()
@@ -40,14 +42,25 @@ public class MenuScript : MonoBehaviour
             Destroy(GameObject.Find("MenuButtons(Clone)"));
         }
 
-        if (currentMenu == MenuState.options)
+        //Returns back to the main menu when the escape key is hit in any other menu
+        if ((currentMenu == MenuState.options && Input.GetKeyDown(KeyCode.Escape)) ||
+            (currentMenu == MenuState.credits && Input.GetKeyDown(KeyCode.Escape)))
         {
-            Destroy(GameObject.Find("MenuButtons(Clone)"));
+            currentMenu = MenuState.menu;
+            Instantiate(menuButtons);
         }
 
-        if (currentMenu == MenuState.credits)
+        //Prompts the user with quit options when they attempt to quit
+        if (currentMenu == MenuState.quit)
         {
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+                Application.Quit();
 
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Destroy(GameObject.Find("QuitPrompt(Clone)"));
+                currentMenu = MenuState.menu;
+            }
         }
 	}
 }
