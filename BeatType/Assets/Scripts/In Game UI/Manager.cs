@@ -36,11 +36,13 @@ public class Manager : MonoBehaviour
     //UI items
     public GameObject CirclePrefab;
     public RectTransform UICircle;
+    public Text comboText;
+    public Text scoreText;
 
     //alphabet for looping through input
     int[] keys = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
     //live beatmap
-    int[] beatmap = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
+    int[] beatmap = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 7, 4, 2, 8, 1, 0, 0, 0, 6, 4, 1, 9, 3, 4 };
     List<float> beatmapTimes;  //TEMP - time list to create a time distance between notes
 
     //Temporary integer for traversing the beatmap array
@@ -81,9 +83,8 @@ public class Manager : MonoBehaviour
         beatHit = false;
         score = 0;
         //World coordinates of the range for hitting a beat
-        Vector3 topLeftRange = mainCamera.ViewportToWorldPoint(new Vector3(0.0f, 0.5f));
-        Vector3 botRightRange = mainCamera.ViewportToWorldPoint(new Vector3(1.0f, 0.0f));
-
+        topLeftRange = mainCamera.ViewportToWorldPoint(new Vector3(0.0f, 0.3f));
+        botRightRange = mainCamera.ViewportToWorldPoint(new Vector3(1.0f, 0.1f));
         //-----IGNORE-----
 
         xOffset = 9.425f; // used for aligning spawned beat, the higher the more to the left all the notes will be
@@ -103,22 +104,32 @@ public class Manager : MonoBehaviour
             //ViewPointToWorld of the spawning location
             Vector3 spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.091f * (i + 1), 1.1f));
             keySpawns.Add(i + 1, spawnPoint);
-
             //Add the 0 key
             if (i == 8)
             {
-                //Add 8 to the beatmapTimes
-                beatmapTimes.Add(1f * i);
                 //increment i for 0
                 i++;
                 //Change the spawn location to adjust for the new i value
                 spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.091f * (i + 1), 1.1f));      
                 keySpawns.Add(0, spawnPoint);
             }
-
-            //TEMP - spawning is 1 second apart from each other
-            beatmapTimes.Add(1f * i);
         }
+
+        //-----Set up Beatmap times-----
+        //TEMP
+        for(int i = 0; i < beatmap.Length; i++)
+        {
+            if(i == 0)
+            {
+                beatmapTimes.Add(Random.Range(0.5f, 3.0f));
+            }
+            else
+            {
+                beatmapTimes.Add(beatmapTimes[i-1] + Random.Range(0.5f, 3.0f));
+            }
+        }
+
+        //-----End Beatmap time setup
 
         //Set the initial state to InGame
         currState = gameState.InGame;
@@ -140,7 +151,7 @@ public class Manager : MonoBehaviour
             {
                 if (globalTimer >= beatmapTimes[nextBeat])
                 {
-                    spawnBeat(nextBeat);
+                    spawnBeat(beatmap[nextBeat]);
                     nextBeat++;
                 }
             }
@@ -224,23 +235,29 @@ public class Manager : MonoBehaviour
         if(beatHit)
         {
             comboCount++;
+            score++;
             //Check if the combo is at least 2
             if(comboCount > 1)
             {
                 //Consider increasing the score with combo
-                //score += 2;
+                score += comboCount;
 
                 //Give some feedback
                 Debug.Log("Combo + " + comboCount + "!");
             }
-            Debug.Log("Combo + " + comboCount + "!");
+            //Update the score text
+            scoreText.text = "Score: " + score;
+
+            //Debug.Log("Combo + " + comboCount + "!");
         }
         else
         {
             //Reset the combo and give feedback
             comboCount = 0;
-            Debug.Log("Combo lost!");
+            //Debug.Log("Combo lost!");
         }
+        //Update the combo text
+        comboText.text = "Combo: " + comboCount;
     }
 
     bool checkRange(GameObject beat)  //Checks if a beat can be hit
