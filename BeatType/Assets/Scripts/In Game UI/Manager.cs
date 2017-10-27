@@ -38,11 +38,12 @@ public class Manager : MonoBehaviour
     public RectTransform UICircle;
     public Text comboText;
     public Text scoreText;
+    public GameObject restartButton;
 
     //alphabet for looping through input
     int[] keys = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
     //live beatmap
-    int[] beatmap = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 7, 4, 2, 8, 1, 0, 0, 0, 6, 4, 1, 9, 3, 4 };
+    int[] beatmap = { 1, 5, 6, 3, 8, 2, 9, 7, 0, 7, 4, 2, 8, 1, 0, 0, 0, 6, 4, 1, 9, 3, 4 };
     List<float> beatmapTimes;  //TEMP - time list to create a time distance between notes
 
     //Temporary integer for traversing the beatmap array
@@ -184,7 +185,7 @@ public class Manager : MonoBehaviour
                     if (Input.anyKeyDown)
                     {
                         //Check if the key pressed matches
-                        if (Input.GetKeyDown("" + beatmap[currentBeat]))
+                        if (Input.GetKeyDown("" + beatmap[currentBeat]) || Input.GetKeyDown("[" + beatmap[currentBeat] + "]"))
                         {
                             beatHit = true;
                             currentBeat++;
@@ -195,10 +196,11 @@ public class Manager : MonoBehaviour
             }
 
             //If no more beats
-            //else
-            //{
-            //    currState = gameState.GameEnd;
-            //}
+            if(currentBeat >= beatmap.Length)
+            {
+                currState = gameState.GameEnd;
+                restartButton.SetActive(true);
+            }
 
             //pause
             if (Input.GetKeyUp(KeyCode.Space))
