@@ -44,15 +44,12 @@ public class ComboManager : MonoBehaviour
     {
         //beatHit = false;
         timeFromLastNote += Time.deltaTime;
-
-        //Checks to see if the user made the combo
-        //checkCombo();
 	}
 
     //Checks to see if the combo needs to be updated
     public void checkCombo()
     {
-        
+        /*
         //Check if missed note
         if(timeFromLastNote > avgTime + extraTimeBuffer && comboCount > 1)
         {
@@ -73,6 +70,22 @@ public class ComboManager : MonoBehaviour
             {
                 Debug.Log("Combo + " + comboCount);  //temporary log until UI is in place
             }
+        }
+        */
+
+        if(beatHit)
+        {
+            //Increase combo and reset timeFromLastNote
+            comboCount++;
+
+            Debug.Log("Combo + " + comboCount);  //temporary log until UI is in place
+        }
+        else
+        {
+            //Lose combo and reset timeFromLastNote
+            comboCount = 0;
+
+            Debug.Log("lost combo");  //temporary log until UI is in place
         }
         
     }
