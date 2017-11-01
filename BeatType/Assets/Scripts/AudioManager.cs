@@ -14,14 +14,15 @@ public class AudioManager : MonoBehaviour {
 	// Dont need to do anything to the AudioSource Component. Just have one.
         playAudio = GetComponent<AudioSource>();
         playAudio.clip = null; // Makes sure you set a song to play. 
+       
     }
 	
 	// Update is called once per frame
 	void Update () {
-		
+
 	}
 
-    public void loadAudioFiles(string path) // Path starts by default at Assets/Resources/path
+    public void loadAudioFiles(string path) // Path starts by default at Assets/Resources/..path
     {
         audioFiles = Resources.LoadAll(path, typeof(AudioClip)).Cast<AudioClip>().ToArray();
     } 
@@ -34,12 +35,12 @@ public class AudioManager : MonoBehaviour {
         }
     }
 
-    public void setAudioToPlay(int index) // Set the SONG that will be played.
+    public void setSongToPlay(int index) // Set the SONG that will be played.
     {
         playAudio.clip = audioFiles[index]; 
     }
 
-    public void playAudioFile() // Play the selected song. 
+    public void playSong() // Play the selected song. 
     {
         if (playAudio.clip == null)
         {
@@ -47,13 +48,27 @@ public class AudioManager : MonoBehaviour {
         }
         else
         {
-            playAudio.Play();
+            playAudio.PlayDelayed(2.3f);
         }
        
     }
 
-    public int getCurrentTime() // returns the current playback time of the song in seconds.
+    public float getCurrentTime() // returns the current playback time of the song in seconds.
     {
-        return playAudio.timeSamples; 
+        return playAudio.time; 
     }
+
+    public void isPaused(bool pause)
+    {
+        if (pause)
+        {
+            playAudio.Pause();
+        }
+        else
+        {
+            playAudio.UnPause(); 
+        }
+    }
+
+
 }

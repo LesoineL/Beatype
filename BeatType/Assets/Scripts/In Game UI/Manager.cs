@@ -8,24 +8,20 @@ public class Manager : MonoBehaviour
 
     //-----Variables------
     int comboCount;
-    float timeFromLastNote;
-    float spawnTimer;
-    float globalTimer;  //float to hold the total time
+    const float hitTime = .15f;
+    float timeOffset;
+    float offSetTimer; 
     bool beatHit;
-    float spacing;  // spacing of note spawning 
+    float globalTimer; 
+
     //World coordinates of the range for hitting a beat
     Vector3 topLeftRange;
     Vector3 botRightRange;
-
-    //Offsets used in placement of beats
-    float xOffset;
-    float yOffset; 
-
+    float songTimer; // an easier way of keeping track of the current song time
+    float noteFallSpeed; 
     Dictionary<int, Vector3> keySpawns;  //Key and spawn location
-    int score;  //Current score (seperate from the combo)
-
-    //AudioClip audio1;
-    //public AudioSource playAudio;
+    float score;  //Current score (seperate from the combo)
+    float percentPerHit; // to calculate a more easy to recognize score, based on % hit
 
     //Audio manager
     AudioManager aManager;
@@ -40,11 +36,10 @@ public class Manager : MonoBehaviour
     public Text scoreText;
     public GameObject restartButton;
 
-    //alphabet for looping through input
-    int[] keys = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
     //live beatmap
-    int[] beatmap = { 1, 5, 6, 3, 8, 2, 9, 7, 0, 7, 4, 2, 8, 1, 0, 0, 0, 6, 4, 1, 9, 3, 4 };
-    List<float> beatmapTimes;  //TEMP - time list to create a time distance between notes
+    List<int> beatmap;
+    List<float> beatmapTimes;  
+
 
     //Temporary integer for traversing the beatmap array
     //CHANGE when destroying objects is implemented as this will affect hitCircles
@@ -53,14 +48,11 @@ public class Manager : MonoBehaviour
     //TEMP - change if better way of doing traversing found
     int currentBeat;
 
-    int beatsOnScreen;
-
     //defines how many beats it takes circles to move across the entire screen, use this to adjust circle speed
     public int beatsAcrossScreen;
     List<GameObject> hitItems = new List<GameObject>();
 
-    //timer for green on beat hit
-    float hitTimer;
+    Reflection song;
 
     //Enum for the game state
     enum gameState
@@ -74,7 +66,8 @@ public class Manager : MonoBehaviour
 
     // Use this for initialization
     void Start ()
-    {       
+    {
+        song = GetComponent<Reflection>(); 
         aManager = GetComponent<AudioManager>(); //Get a reference to the audio manager
         currentBeat = 0;  //The current beat of focus (the one that is the closest to being hittable)
         nextBeat = 0;   //The next beat for spawning
@@ -86,17 +79,11 @@ public class Manager : MonoBehaviour
         //World coordinates of the range for hitting a beat
         topLeftRange = mainCamera.ViewportToWorldPoint(new Vector3(0.0f, 0.3f));
         botRightRange = mainCamera.ViewportToWorldPoint(new Vector3(1.0f, 0.1f));
-        //-----IGNORE-----
-
-        xOffset = 9.425f; // used for aligning spawned beat, the higher the more to the left all the notes will be
-        yOffset = 6.0f; // how high the beats spawn
-        spacing = 2.1f; // space between each beat horizontally 
-
-        //----------------
 
         keySpawns = new Dictionary<int, Vector3>(); //Create a new dictionary for each possible key and it's spawn location
 
-        beatmapTimes = new List<float>();  //Initialize the list for containing the times
+        beatmap = song.LoadandSetNoteMap();
+        beatmapTimes = song.LoadandSetNoteTimes(); //Initialize the list for containing the times
 
         //For loop to set up key spawn locations
         for (int i = 0; i < 9; i++)
@@ -111,26 +98,18 @@ public class Manager : MonoBehaviour
                 //increment i for 0
                 i++;
                 //Change the spawn location to adjust for the new i value
-                spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.091f * (i + 1), 1.1f));      
+                spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.0925f * (i + 1), 1.1f));      
                 keySpawns.Add(0, spawnPoint);
             }
         }
 
-        //-----Set up Beatmap times-----
-        //TEMP
-        for(int i = 0; i < beatmap.Length; i++)
-        {
-            if(i == 0)
-            {
-                beatmapTimes.Add(Random.Range(0.5f, 3.0f));
-            }
-            else
-            {
-                beatmapTimes.Add(beatmapTimes[i-1] + Random.Range(0.5f, 3.0f));
-            }
-        }
 
-        //-----End Beatmap time setup
+        aManager.loadAudioFiles("Sounds/Songs");
+        aManager.setSongToPlay(0);
+        aManager.playSong();
+        noteFallSpeed = 4.0f;
+        timeOffset = noteFallSpeed * 5.7f;
+        percentPerHit = 100.0f / beatmap.Count;
 
         //Set the initial state to InGame
         currState = gameState.InGame;
@@ -142,15 +121,15 @@ public class Manager : MonoBehaviour
         //-----InGame-----
         if(currState == gameState.InGame)
         {
-            //Increment the spawn timer
-            //spawnTimer += Time.deltaTime;
-
-            //Increment the global timer
+            songTimer = aManager.getCurrentTime();
             globalTimer += Time.deltaTime;
+            offSetTimer = globalTimer + timeOffset; 
 
-            if(nextBeat < beatmap.Length)
+         //  Debug.Log("Beat time: " + beatmapTimes[currentBeat] + " Song Timer: " + songTimer);
+            if (nextBeat < beatmap.Count)
             {
-                if (globalTimer >= beatmapTimes[nextBeat])
+                float timeToSpawn = beatmapTimes[nextBeat] + timeOffset;
+                 if (offSetTimer >= timeToSpawn)
                 {
                     spawnBeat(beatmap[nextBeat]);
                     nextBeat++;
@@ -160,7 +139,7 @@ public class Manager : MonoBehaviour
             //Move circles
             foreach (GameObject t in hitItems)
             {
-                t.transform.position = new Vector3(t.transform.position.x, t.transform.position.y - Time.deltaTime * 2.0f, 0.0f);
+                t.transform.position = new Vector3(t.transform.position.x, t.transform.position.y - Time.deltaTime * noteFallSpeed, 0.0f);
             }
 
             //Check if a beat was missed
@@ -176,27 +155,33 @@ public class Manager : MonoBehaviour
             }
 
             //Make sure that there is a next beat
-            if(currentBeat < hitItems.Count)
+            if (currentBeat < hitItems.Count)
             {
-                //Check if there is a beat to be hit
-                if (checkRange(hitItems[currentBeat]))
+                if (beatmapTimes[currentBeat] - songTimer <= .5)
                 {
-                    //Check if a key is pressed
-                    if (Input.anyKeyDown)
+                  //  Debug.Log("song timer " + songTimer + " beat time " + beatmapTimes[currentBeat]); 
+                    //Check if there is a beat to be hit
+                    if (Input.GetKeyDown("" + beatmap[currentBeat]) || Input.GetKeyDown("[" + beatmap[currentBeat] + "]"))
                     {
-                        //Check if the key pressed matches
-                        if (Input.GetKeyDown("" + beatmap[currentBeat]) || Input.GetKeyDown("[" + beatmap[currentBeat] + "]"))
+                        if (beatmapTimes[currentBeat] <= songTimer + hitTime && beatmapTimes[currentBeat] >= songTimer - hitTime)
                         {
                             beatHit = true;
                             currentBeat++;
                             updateCombo();
                         }
+                        else
+                        {
+                            beatHit = false;
+                            updateCombo();
+                            currentBeat++;
+                        }
                     }
                 }
+               
             }
 
             //If no more beats
-            if(currentBeat >= beatmap.Length)
+            if(currentBeat >= beatmap.Count)
             {
                 currState = gameState.GameEnd;
                 restartButton.SetActive(true);
@@ -206,6 +191,7 @@ public class Manager : MonoBehaviour
             if (Input.GetKeyUp(KeyCode.Space))
             {
                 currState = gameState.Paused;
+                aManager.isPaused(true);
                 return;
             }
 
@@ -218,6 +204,7 @@ public class Manager : MonoBehaviour
             if (Input.GetKeyUp(KeyCode.Space)) //Space for now due to easy reachability
             {
                 currState = gameState.InGame;
+                aManager.isPaused(false); 
                 return;
             }
         }
@@ -237,18 +224,17 @@ public class Manager : MonoBehaviour
         if(beatHit)
         {
             comboCount++;
-            score++;
+            score += percentPerHit;
+            
             //Check if the combo is at least 2
             if(comboCount > 1)
             {
                 //Consider increasing the score with combo
-                score += comboCount;
+              //  score += comboCount;
 
-                //Give some feedback
-                Debug.Log("Combo + " + comboCount + "!");
             }
             //Update the score text
-            scoreText.text = "Score: " + score;
+            scoreText.text = score.ToString("f2") + "%";
 
             //Debug.Log("Combo + " + comboCount + "!");
         }
@@ -256,7 +242,6 @@ public class Manager : MonoBehaviour
         {
             //Reset the combo and give feedback
             comboCount = 0;
-            //Debug.Log("Combo lost!");
         }
         //Update the combo text
         comboText.text = "Combo: " + comboCount;
