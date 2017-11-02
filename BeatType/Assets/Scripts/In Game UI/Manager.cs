@@ -72,9 +72,9 @@ public class Manager : MonoBehaviour {
         botRightRange = mainCamera.ViewportToWorldPoint(new Vector3(1.0f, 0.1f));
 
         keySpawns = new Dictionary<int, Vector3>(); //Create a new dictionary for each possible key and it's spawn location
-
-        beatmap = song.LoadandSetNoteMap();
-        beatmapTimes = song.LoadandSetNoteTimes(); //Initialize the list for containing the times
+        song.createSongMap(); // physically puts in the notes into the Lists 
+        beatmap = song.LoadandSetNotes(); // return the created lists
+        beatmapTimes = song.LoadandSetTimes(); // return the created lists
 
         //For loop to set up key spawn locations
         for (int i = 0; i < 9; i++)

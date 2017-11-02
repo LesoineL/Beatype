@@ -15,34 +15,34 @@ public class Song1 : MonoBehaviour {
 	void Update () {
 		
 	}
-    public List<int> LoadandSetNoteMap()
+    public void createSongMap()
     {
         beatmap = new List<int>();
-        beatmap.Add(4);
-        beatmap.Add(5);
-        beatmap.Add(4);
-        beatmap.Add(7);
-        beatmap.Add(5);
-        beatmap.Add(5);
-        beatmap.Add(6);
-        beatmap.Add(7);
-        beatmap.Add(7);
+        beatmapTimes = new List<float>();
+
+        addNote(4, 9.9f);
+        addNote(5, 10.4f);
+        addNote(4, 11.1f);
+        addNote(7, 11.8f);
+        addNote(5, 12.95f);
+        addNote(5, 13.25f);
+        addNote(6, 14.8f);
+        addNote(7, 15.7f);
+        addNote(7, 16.05f);
+        
+    }              
+    void addNote(int key, float time)
+    {
+        beatmap.Add(key);
+        beatmapTimes.Add(time); 
+    }
+
+    public List<int> LoadandSetNotes()
+    {
         return beatmap;
     }
-    public List<float> LoadandSetNoteTimes()
+    public List<float> LoadandSetTimes()
     {
-        beatmapTimes = new List<float>();
-        beatmapTimes.Add(9.9f);
-        beatmapTimes.Add(10.4f);
-        beatmapTimes.Add(11.1f);
-        beatmapTimes.Add(11.8f);
-        beatmapTimes.Add(12.95f);
-        beatmapTimes.Add(13.25f);
-
-        beatmapTimes.Add(14.8f);
-        beatmapTimes.Add(15.7f);
-        beatmapTimes.Add(16.05f);
-
         return beatmapTimes;
     }
 }
