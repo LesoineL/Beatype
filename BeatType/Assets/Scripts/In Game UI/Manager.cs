@@ -7,7 +7,8 @@ public class Manager : MonoBehaviour {
 
     //-----Variables------
     int comboCount;
-    const float hitTime = .12f;
+    const float hitTime = .1375f;
+    const float bottomTime = .1f; 
     float timeOffset;
     float offSetTimer;
     bool beatHit;
@@ -46,6 +47,7 @@ public class Manager : MonoBehaviour {
     List<GameObject> hitItems = new List<GameObject>();
 
     Song1 song;
+    NoteRecorder recorder; 
 
     //Enum for the game state
     enum gameState
@@ -104,6 +106,8 @@ public class Manager : MonoBehaviour {
 
         //Set the initial state to InGame
         currState = gameState.InGame;
+
+        recorder = GetComponent<NoteRecorder>();
     }
 	
 	// Update is called once per frame
@@ -115,10 +119,26 @@ public class Manager : MonoBehaviour {
             globalTimer += Time.deltaTime;
             offSetTimer = globalTimer + timeOffset;
 
-            Debug.Log("song timer " + songTimer);
+            if (Input.GetKeyDown(KeyCode.M)) // for easy song time mapping 
+            {
+                recorder.writeNote(songTimer); 
+            }
+            if (Input.GetKeyDown(KeyCode.N)) // a second key to record with for those pesky solos 
+            {
+                recorder.writeNote(songTimer);
+            }
+            if (Input.GetKeyDown(KeyCode.O)) // press to be able to start recording 
+            {
+                recorder.InitializeFileWriter();
+            }
+            if (Input.GetKeyDown(KeyCode.C)) // press after your done recording before stopping scene 
+            {
+                recorder.CloseFileWriter();
+            }
+
             if (nextBeat < beatmap.Count)
             {
-                float timeToSpawn = beatmapTimes[nextBeat] + timeOffset;
+                float timeToSpawn = beatmapTimes[nextBeat] + timeOffset; 
                 if (offSetTimer >= timeToSpawn)
                 {
                     spawnBeat(beatmap[nextBeat]);
@@ -143,12 +163,12 @@ public class Manager : MonoBehaviour {
             //Make sure that there is a next beat
             if (currentBeat < hitItems.Count)
             {
-                if (beatmapTimes[currentBeat] - songTimer <= .5)
+                if (beatmapTimes[currentBeat] - songTimer <= .3)
                 {
                     //Check if there is a beat to be hit
                     if (Input.GetKeyDown("" + beatmap[currentBeat]) || Input.GetKeyDown("[" + beatmap[currentBeat] + "]"))
                     {
-                        if (beatmapTimes[currentBeat] <= songTimer + hitTime && beatmapTimes[currentBeat] >= songTimer - hitTime)
+                        if (beatmapTimes[currentBeat] <= songTimer + hitTime && beatmapTimes[currentBeat] >= songTimer - bottomTime)
                         {
                             beatHit = true;
                             hitItems[currentBeat].GetComponent<Renderer>().material.color = Color.clear;
@@ -266,7 +286,7 @@ public class Manager : MonoBehaviour {
             GameObject newTarget = GameObject.Instantiate(note);
             newTarget.transform.position = (Vector3)keySpawns[number];
             hitItems.Add(newTarget);
-            Debug.Log("Circle made at: " + (Vector3)keySpawns[(int)number]);
+           //  Debug.Log("Circle made at: " + (Vector3)keySpawns[(int)number]);
         }
     }
 }
