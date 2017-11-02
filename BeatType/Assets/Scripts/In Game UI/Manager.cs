@@ -3,22 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Manager : MonoBehaviour
-{
+public class Manager : MonoBehaviour {
 
     //-----Variables------
     int comboCount;
     const float hitTime = .12f;
     float timeOffset;
-    float offSetTimer; 
+    float offSetTimer;
     bool beatHit;
-    float globalTimer; 
+    float globalTimer;
 
     //World coordinates of the range for hitting a beat
     Vector3 topLeftRange;
     Vector3 botRightRange;
     float songTimer; // an easier way of keeping track of the current song time
-    float noteFallSpeed; 
+    float noteFallSpeed;
     Dictionary<int, Vector3> keySpawns;  //Key and spawn location
     float score;  //Current score (seperate from the combo)
     float percentPerHit; // to calculate a more easy to recognize score, based on % hit
@@ -34,10 +33,10 @@ public class Manager : MonoBehaviour
     public Text comboText;
     public Text scoreText;
     public GameObject restartButton;
-    public GameObject note; 
+    public GameObject note;
     //live beatmap
     List<int> beatmap;
-    List<float> beatmapTimes;  
+    List<float> beatmapTimes;
 
     int nextBeat;
     int currentBeat;
@@ -46,7 +45,7 @@ public class Manager : MonoBehaviour
     public int beatsAcrossScreen;
     List<GameObject> hitItems = new List<GameObject>();
 
-    Wings song;
+    Song1 song;
 
     //Enum for the game state
     enum gameState
@@ -57,11 +56,9 @@ public class Manager : MonoBehaviour
     }
 
     gameState currState;
-
     // Use this for initialization
-    void Start ()
-    {
-        song = GetComponent<Wings>(); 
+    void Start () {
+        song = GetComponent<Song1>();
         aManager = GetComponent<AudioManager>(); //Get a reference to the audio manager
         currentBeat = 0;  //The current beat of focus 
         nextBeat = 0;   //The next beat for spawning
@@ -92,7 +89,7 @@ public class Manager : MonoBehaviour
                 //increment i for 0
                 i++;
                 //Change the spawn location to adjust for the new i value
-                spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.0925f * (i + 1), 1.1f));      
+                spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.0925f * (i + 1), 1.1f));
                 keySpawns.Add(0, spawnPoint);
             }
         }
@@ -110,10 +107,9 @@ public class Manager : MonoBehaviour
     }
 	
 	// Update is called once per frame
-	void Update ()
-    {
+	void Update () {
         //-----InGame-----
-        if(currState == gameState.InGame)
+        if (currState == gameState.InGame)
         {
             songTimer = aManager.getCurrentTime();
             globalTimer += Time.deltaTime;
@@ -123,7 +119,7 @@ public class Manager : MonoBehaviour
             if (nextBeat < beatmap.Count)
             {
                 float timeToSpawn = beatmapTimes[nextBeat] + timeOffset;
-                 if (offSetTimer >= timeToSpawn)
+                if (offSetTimer >= timeToSpawn)
                 {
                     spawnBeat(beatmap[nextBeat]);
                     nextBeat++;
@@ -155,7 +151,7 @@ public class Manager : MonoBehaviour
                         if (beatmapTimes[currentBeat] <= songTimer + hitTime && beatmapTimes[currentBeat] >= songTimer - hitTime)
                         {
                             beatHit = true;
-                            hitItems[currentBeat].GetComponent<Renderer>().material.color = Color.clear; 
+                            hitItems[currentBeat].GetComponent<Renderer>().material.color = Color.clear;
                             currentBeat++;
                             updateCombo();
 
@@ -168,11 +164,11 @@ public class Manager : MonoBehaviour
                         }
                     }
                 }
-               
+
             }
             if (aManager.isSongPlaying() == false) // if song is finished playing 
             {                                      //If no more beats
-                if (currentBeat >= beatmap.Count)               
+                if (currentBeat >= beatmap.Count)
                 {
                     currState = gameState.GameEnd;
                     restartButton.SetActive(true);
@@ -193,30 +189,30 @@ public class Manager : MonoBehaviour
         } // in game end bracket 
 
         //-----Pause Menu-----
-        else if(currState == gameState.Paused)
+        else if (currState == gameState.Paused)
         {
             //Check if the user is unpausing the game
             if (Input.GetKeyUp(KeyCode.Space)) //Space for now due to easy reachability
             {
                 currState = gameState.InGame;
-                aManager.isPaused(false); 
+                aManager.isPaused(false);
                 return;
             }
         }
 
         //-----Song Ended-----
-        else if(currState == gameState.GameEnd)
+        else if (currState == gameState.GameEnd)
         {
             //TODO--song end screen & return to main?
-        }  
+        }
 
-    } // Update end bracket 
+    } // update end
 
-    //-----Helper Methods-----
+    //Helper methods
     void updateCombo()  //Updates the current combo
     {
         //Check if the beat was hit
-        if(beatHit)
+        if (beatHit)
         {
             comboCount++;
             score += percentPerHit;
@@ -252,7 +248,7 @@ public class Manager : MonoBehaviour
         for (int i = currentBeat; i < hitItems.Count; i++)
         {
             //Check to see if it past the allotted range for being hit
-            if(hitItems[i].transform.position.y < botRightRange.y)
+            if (hitItems[i].transform.position.y < botRightRange.y)
             {
                 return true;
             }
@@ -264,7 +260,7 @@ public class Manager : MonoBehaviour
     void spawnBeat(int number)  //Spawns a beat labeled with the specified number
     {
         //Make sure it is a valid value
-        if(number != -1)
+        if (number != -1)
         {
             //Instantiate a new object
             GameObject newTarget = GameObject.Instantiate(note);

@@ -2,23 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Wings : MonoBehaviour {
+public class Song1 : MonoBehaviour {
 
     List<int> beatmap;
     List<float> beatmapTimes;
-
     // Use this for initialization
     void Start () {
         beatmap = new List<int>();
-        beatmapTimes = new List<float>(); 
-	}
+        beatmapTimes = new List<float>();
+    }
 	
 	// Update is called once per frame
 	void Update () {
 		
 	}
-
-   public List<int> LoadandSetNoteMap()
+    public List<int> LoadandSetNoteMap()
     {
         beatmap.Add(4);
         beatmap.Add(5);
@@ -31,8 +29,7 @@ public class Wings : MonoBehaviour {
         beatmap.Add(7);
         return beatmap;
     }
-
-    public  List<float>  LoadandSetNoteTimes()
+    public List<float> LoadandSetNoteTimes()
     {
         beatmapTimes.Add(9.9f);
         beatmapTimes.Add(10.4f);
@@ -45,6 +42,6 @@ public class Wings : MonoBehaviour {
         beatmapTimes.Add(15.7f);
         beatmapTimes.Add(16.05f);
 
-        return beatmapTimes; 
+        return beatmapTimes;
     }
 }
