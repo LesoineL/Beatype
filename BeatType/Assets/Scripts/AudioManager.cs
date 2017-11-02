@@ -10,8 +10,7 @@ public class AudioManager : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        playAudio = GetComponent<AudioSource>();
-        playAudio.clip = null; // Makes sure you set a song to play. 
+
     }
 	
 	// Update is called once per frame
@@ -21,6 +20,8 @@ public class AudioManager : MonoBehaviour {
 
     public void loadAudioFiles(string path) // Path starts by default at Assets/Resources/..path
     {
+        playAudio = GetComponent<AudioSource>();
+        playAudio.clip = null; // Makes sure you set a song to play. 
         audioFiles = Resources.LoadAll(path, typeof(AudioClip)).Cast<AudioClip>().ToArray();
     }
 

@@ -8,8 +8,7 @@ public class Song1 : MonoBehaviour {
     List<float> beatmapTimes;
     // Use this for initialization
     void Start () {
-        beatmap = new List<int>();
-        beatmapTimes = new List<float>();
+      
     }
 	
 	// Update is called once per frame
@@ -18,6 +17,7 @@ public class Song1 : MonoBehaviour {
 	}
     public List<int> LoadandSetNoteMap()
     {
+        beatmap = new List<int>();
         beatmap.Add(4);
         beatmap.Add(5);
         beatmap.Add(4);
@@ -31,6 +31,7 @@ public class Song1 : MonoBehaviour {
     }
     public List<float> LoadandSetNoteTimes()
     {
+        beatmapTimes = new List<float>();
         beatmapTimes.Add(9.9f);
         beatmapTimes.Add(10.4f);
         beatmapTimes.Add(11.1f);
