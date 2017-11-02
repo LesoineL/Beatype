@@ -8,7 +8,7 @@ public class Manager : MonoBehaviour
 
     //-----Variables------
     int comboCount;
-    const float hitTime = .15f;
+    const float hitTime = .12f;
     float timeOffset;
     float offSetTimer; 
     bool beatHit;
@@ -30,29 +30,23 @@ public class Manager : MonoBehaviour
     public Camera mainCamera;
 
     //UI items
-    public GameObject CirclePrefab;
     public RectTransform UICircle;
     public Text comboText;
     public Text scoreText;
     public GameObject restartButton;
-
+    public GameObject note; 
     //live beatmap
     List<int> beatmap;
     List<float> beatmapTimes;  
 
-
-    //Temporary integer for traversing the beatmap array
-    //CHANGE when destroying objects is implemented as this will affect hitCircles
     int nextBeat;
-
-    //TEMP - change if better way of doing traversing found
     int currentBeat;
 
     //defines how many beats it takes circles to move across the entire screen, use this to adjust circle speed
     public int beatsAcrossScreen;
     List<GameObject> hitItems = new List<GameObject>();
 
-    Reflection song;
+    Wings song;
 
     //Enum for the game state
     enum gameState
@@ -67,9 +61,9 @@ public class Manager : MonoBehaviour
     // Use this for initialization
     void Start ()
     {
-        song = GetComponent<Reflection>(); 
+        song = GetComponent<Wings>(); 
         aManager = GetComponent<AudioManager>(); //Get a reference to the audio manager
-        currentBeat = 0;  //The current beat of focus (the one that is the closest to being hittable)
+        currentBeat = 0;  //The current beat of focus 
         nextBeat = 0;   //The next beat for spawning
 
         //initialize other variables
@@ -123,9 +117,9 @@ public class Manager : MonoBehaviour
         {
             songTimer = aManager.getCurrentTime();
             globalTimer += Time.deltaTime;
-            offSetTimer = globalTimer + timeOffset; 
+            offSetTimer = globalTimer + timeOffset;
 
-         //  Debug.Log("Beat time: " + beatmapTimes[currentBeat] + " Song Timer: " + songTimer);
+            Debug.Log("song timer " + songTimer);
             if (nextBeat < beatmap.Count)
             {
                 float timeToSpawn = beatmapTimes[nextBeat] + timeOffset;
@@ -146,11 +140,7 @@ public class Manager : MonoBehaviour
             if (missedBeat())
             {
                 beatHit = false;
-
-                //Update the combo
                 updateCombo();
-
-                //change the item to check
                 currentBeat++;
             }
 
@@ -159,15 +149,16 @@ public class Manager : MonoBehaviour
             {
                 if (beatmapTimes[currentBeat] - songTimer <= .5)
                 {
-                  //  Debug.Log("song timer " + songTimer + " beat time " + beatmapTimes[currentBeat]); 
                     //Check if there is a beat to be hit
                     if (Input.GetKeyDown("" + beatmap[currentBeat]) || Input.GetKeyDown("[" + beatmap[currentBeat] + "]"))
                     {
                         if (beatmapTimes[currentBeat] <= songTimer + hitTime && beatmapTimes[currentBeat] >= songTimer - hitTime)
                         {
                             beatHit = true;
+                            hitItems[currentBeat].GetComponent<Renderer>().material.color = Color.clear; 
                             currentBeat++;
                             updateCombo();
+
                         }
                         else
                         {
@@ -179,20 +170,24 @@ public class Manager : MonoBehaviour
                 }
                
             }
-
-            //If no more beats
-            if(currentBeat >= beatmap.Count)
-            {
-                currState = gameState.GameEnd;
-                restartButton.SetActive(true);
+            if (aManager.isSongPlaying() == false) // if song is finished playing 
+            {                                      //If no more beats
+                if (currentBeat >= beatmap.Count)               
+                {
+                    currState = gameState.GameEnd;
+                    restartButton.SetActive(true);
+                }
             }
 
             //pause
-            if (Input.GetKeyUp(KeyCode.Space))
+            if (currentBeat != beatmap.Count) // only pause if its not the end of the song/beats. 
             {
-                currState = gameState.Paused;
-                aManager.isPaused(true);
-                return;
+                if (Input.GetKeyUp(KeyCode.Space))
+                {
+                    currState = gameState.Paused;
+                    aManager.isPaused(true);
+                    return;
+                }
             }
 
         } // in game end bracket 
@@ -225,23 +220,16 @@ public class Manager : MonoBehaviour
         {
             comboCount++;
             score += percentPerHit;
-            
-            //Check if the combo is at least 2
-            if(comboCount > 1)
-            {
-                //Consider increasing the score with combo
-              //  score += comboCount;
 
-            }
             //Update the score text
             scoreText.text = score.ToString("f2") + "%";
 
-            //Debug.Log("Combo + " + comboCount + "!");
         }
         else
         {
             //Reset the combo and give feedback
             comboCount = 0;
+            hitItems[currentBeat].GetComponent<Renderer>().material.color = Color.red; // change to a color if beat misses. Only clear color works right now oddly.
         }
         //Update the combo text
         comboText.text = "Combo: " + comboCount;
@@ -279,8 +267,7 @@ public class Manager : MonoBehaviour
         if(number != -1)
         {
             //Instantiate a new object
-            //GameObject newTarget = GameObject.Instantiate(GameObject.CreatePrimitive(PrimitiveType.Sphere, (Vector3)keySpawns[(int)number], Quaternion.identity) as GameObject;
-            GameObject newTarget = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            GameObject newTarget = GameObject.Instantiate(note);
             newTarget.transform.position = (Vector3)keySpawns[number];
             hitItems.Add(newTarget);
             Debug.Log("Circle made at: " + (Vector3)keySpawns[(int)number]);

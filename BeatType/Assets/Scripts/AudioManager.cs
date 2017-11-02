@@ -14,7 +14,7 @@ public class AudioManager : MonoBehaviour {
 	// Dont need to do anything to the AudioSource Component. Just have one.
         playAudio = GetComponent<AudioSource>();
         playAudio.clip = null; // Makes sure you set a song to play. 
-       
+
     }
 	
 	// Update is called once per frame
@@ -68,6 +68,11 @@ public class AudioManager : MonoBehaviour {
         {
             playAudio.UnPause(); 
         }
+    }
+
+    public bool isSongPlaying()
+    {
+        return playAudio.isPlaying;
     }
 
 
