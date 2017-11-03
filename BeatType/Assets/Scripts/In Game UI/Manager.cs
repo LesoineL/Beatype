@@ -245,7 +245,7 @@ public class Manager : MonoBehaviour {
         {
             //Reset the combo and give feedback
             comboCount = 0;
-            hitItems[currentBeat].GetComponent<Renderer>().material.color = Color.red; // change to a color if beat misses. Only clear color works right now oddly.
+            hitItems[currentBeat].GetComponent<Renderer>().material.color = Color.clear; // change to a color if beat misses. Only clear color works right now oddly.
         }
         //Update the combo text
         comboText.text = "Combo: " + comboCount;
