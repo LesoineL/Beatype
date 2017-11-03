@@ -18,10 +18,12 @@ public class NoteRecorder : MonoBehaviour {
     public  void InitializeFileWriter()
     {
         writer = new StreamWriter("Assets/Resources/notes.txt", true);
+        Debug.Log("Note writer opened");
     }
     public void CloseFileWriter()
     {
-        writer.Close(); 
+        writer.Close();
+        Debug.Log("Note writer closed");
     }
     public void writeNote(float time)
     {

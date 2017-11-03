@@ -83,15 +83,61 @@ public class Manager : MonoBehaviour {
         {
             //1 - 9 keys
             //ViewPointToWorld of the spawning location
-            Vector3 spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.091f * (i + 1), 1.1f));
-            keySpawns.Add(i + 1, spawnPoint);
+            //Vector3 spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.091f * (i + 1), 1.1f));
+            Vector3 spawnPoint;
+
+            if (i == 0)
+            {
+                spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.065f, 1.1f));
+                keySpawns.Add(i + 1, spawnPoint);
+            }
+            else if(i == 1)
+            {
+                spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.16f, 1.1f));
+                keySpawns.Add(i + 1, spawnPoint);
+            }
+            else if (i == 2)
+            {
+                spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.2555f, 1.1f));
+                keySpawns.Add(i + 1, spawnPoint);
+            }
+            else if (i == 3)
+            {
+                spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.355f, 1.1f));
+                keySpawns.Add(i + 1, spawnPoint);
+            }
+            else if(i == 4)
+            {
+                spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.45f, 1.1f));
+                keySpawns.Add(i + 1, spawnPoint);
+            }
+            else if (i == 5)
+            {
+                spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.55f, 1.1f));
+                keySpawns.Add(i + 1, spawnPoint);
+            }
+            else if (i == 6)
+            {
+                spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.645f, 1.1f));
+                keySpawns.Add(i + 1, spawnPoint);
+            }
+            else if (i == 7)
+            {
+                spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.742f, 1.1f));
+                keySpawns.Add(i + 1, spawnPoint);
+            }
+            else if (i == 8)
+            {
+                spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.841f, 1.1f));
+                keySpawns.Add(i + 1, spawnPoint);
+            }
             //Add the 0 key
             if (i == 8)
             {
                 //increment i for 0
                 i++;
                 //Change the spawn location to adjust for the new i value
-                spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.0925f * (i + 1), 1.1f));
+                spawnPoint = mainCamera.ViewportToWorldPoint(new Vector3(0.935f, 1.1f));
                 keySpawns.Add(0, spawnPoint);
             }
         }
@@ -127,6 +173,12 @@ public class Manager : MonoBehaviour {
             {
                 recorder.writeNote(songTimer);
             }
+            if (Input.GetKeyDown(KeyCode.B)) // a second key to record with for those pesky solos 
+            {
+                recorder.writeNote(songTimer);
+            }
+
+
             if (Input.GetKeyDown(KeyCode.O)) // press to be able to start recording 
             {
                 recorder.InitializeFileWriter();
