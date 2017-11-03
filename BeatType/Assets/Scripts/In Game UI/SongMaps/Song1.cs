@@ -106,7 +106,169 @@ public class Song1 : MonoBehaviour {
         addNote(4, 46.08f);
 
         // bridge 2 
+        addNote(3, 46.51f);
+        addNote(2, 46.68f);
+        addNote(1, 46.85f);
+        addNote(4, 47.04f);
+        addNote(3, 47.40f);
+        addNote(2, 47.62f);
+        addNote(3, 47.98f);
+        addNote(2, 48.15f);
+        addNote(1, 48.30f);
+        addNote(4, 48.47f);
+        addNote(3, 48.81f);
+        addNote(2, 49.00f);
+        addNote(3, 49.39f);
+        addNote(2, 49.54f);
+        addNote(1, 49.68f);
+        addNote(2, 49.88f);
+        addNote(3, 50.22f);
+        addNote(2, 50.41f);
+        addNote(3, 50.79f);
+        addNote(4, 50.96f);
+        addNote(2, 51.14f);
+        addNote(3, 51.31f);
+        addNote(2, 51.50f);
+        addNote(4, 51.67f);
+        addNote(2, 51.86f);
+        addNote(3, 52.20f);       
+        addNote(3, 52.59f);
+        addNote(4, 52.76f);      
+        addNote(3, 53.12f);
+        addNote(2, 53.29f);
+        addNote(1, 53.65f);
+        addNote(2, 53.82f);
+        addNote(3, 53.99f);
+        addNote(2, 54.19f);
+        addNote(3, 54.36f);
+        addNote(2, 54.55f);
+        addNote(3, 54.74f);
+        addNote(1, 55.08f);
+        addNote(3, 55.40f);
+        addNote(2, 55.57f);
+        addNote(3, 55.91f);
+        addNote(4, 56.13f);
 
+        // slow bridge 
+        addNote(3, 57.75f);
+        addNote(4, 58.26f);
+        addNote(5, 58.77f);
+        addNote(7, 59.16f);
+        addNote(3, 60.61f);  
+        addNote(4, 61.10f);
+        addNote(5, 61.65f);
+        addNote(7, 61.99f);
+        addNote(2, 62.74f);
+
+        addNote(6, 63.47f);
+        addNote(6, 63.64f);
+        addNote(5, 64.00f);
+        addNote(5, 64.17f);
+        addNote(4, 64.51f);
+        addNote(4, 64.68f);
+        addNote(3, 65.04f);
+        addNote(3, 65.19f);
+        addNote(2, 65.49f);
+        addNote(2, 65.68f);
+        addNote(1, 66.07f);
+        addNote(1, 66.24f);
+
+        addNote(1, 66.62f);
+        addNote(1, 66.84f);
+
+        addNote(2, 67.14f);
+        addNote(3, 67.48f);
+        addNote(4, 67.65f);
+
+        
+        addNote(3, 69.18f);
+        addNote(4, 69.76f);
+        addNote(5, 70.27f);
+        addNote(7, 70.61f);
+        addNote(3, 72.06f);
+        addNote(4, 72.55f);
+        addNote(5, 73.11f);
+        addNote(7, 73.43f);
+        addNote(3, 74.24f);
+
+        //solo 
+        addNote(0, 74.90501f);
+        addNote(9, 75.012f);
+        addNote(8, 75.14001f);
+        addNote(0, 75.31001f);
+        addNote(9, 75.417f);
+        addNote(8, 75.524f);
+
+        addNote(9, 75.694f);
+        addNote(8, 75.801f);
+        addNote(7, 75.886f);
+        addNote(9, 76.078f);
+        addNote(8, 76.18501f);
+        addNote(7, 76.249f);
+
+        addNote(8, 76.42001f);
+        addNote(7, 76.526f);
+        addNote(6, 76.59f);
+        addNote(8, 76.804f);
+        addNote(7, 76.889f);
+        addNote(6, 76.996f);
+
+        addNote(9, 77.188f);
+        addNote(8, 77.316f);
+        addNote(7, 77.422f);
+
+        addNote(5, 77.764f);
+        addNote(5, 78.148f);
+
+        addNote(4, 78.297f);
+        addNote(3, 79.534f);
+        addNote(8, 79.854f);
+        addNote(7, 80.217f);
+        addNote(9, 80.55801f);
+        addNote(8, 81.284f);
+        addNote(0, 81.98801f);
+
+        //end hehe
+        addNote(0, 83.566f);
+        addNote(9, 83.63f);
+        addNote(8, 83.73701f);
+        addNote(7, 83.886f);
+        addNote(6, 83.97201f);
+        addNote(5, 84.036f);
+
+        addNote(2, 84.91f);
+        addNote(1, 85.358f);
+        addNote(3, 85.742f);
+        addNote(2, 86.105f);
+        addNote(1, 86.48901f);
+        addNote(3, 86.788f);
+        addNote(4, 87.08601f);
+        addNote(5, 87.44901f);
+        addNote(3, 87.897f);
+        addNote(2, 88.23801f);
+        addNote(4, 88.537f);
+        addNote(5, 88.87801f);
+
+        addNote(7, 89.19801f);
+        addNote(8, 89.262f);
+        addNote(9, 89.39001f);
+
+        
+        addNote(4, 90.329f);
+        addNote(6, 90.77701f);
+        addNote(4, 91.118f);
+        addNote(7, 91.332f);
+        addNote(3, 91.50201f);
+        addNote(7, 91.69401f);
+
+        addNote(5, 91.95f);
+        addNote(6, 92.206f);
+        addNote(7, 92.761f);
+
+        addNote(8, 93.465f);
+        addNote(9, 93.508f);
+        addNote(0, 93.636f);
+        
     }
     void addNote(int key, float time)
     {

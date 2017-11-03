@@ -127,6 +127,12 @@ public class Manager : MonoBehaviour {
             {
                 recorder.writeNote(songTimer);
             }
+            if (Input.GetKeyDown(KeyCode.B)) // a second key to record with for those pesky solos 
+            {
+                recorder.writeNote(songTimer);
+            }
+
+
             if (Input.GetKeyDown(KeyCode.O)) // press to be able to start recording 
             {
                 recorder.InitializeFileWriter();
