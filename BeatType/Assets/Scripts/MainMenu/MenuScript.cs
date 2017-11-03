@@ -14,6 +14,13 @@ public class MenuScript : MonoBehaviour
     public GameObject menuButtons;
     //Sprite object for the quit prompt
     public GameObject quitPrompt;
+    //Sprite object for the credits
+    public GameObject credits;
+    //Sprite object for the options
+    public GameObject options;
+
+    //A simple timer for the means of oscillating the opacity of the start prompt
+    float timer = 0.0f;
 
 	// Use this for initialization
 	void Start ()
@@ -26,9 +33,17 @@ public class MenuScript : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
+        //Causes the start prompt to oscillate its opacity
+        if (currentMenu == MenuState.startPrompt)
+        {
+            timer += 3.5f * Time.deltaTime;
+            GameObject.Find("StartPrompt(Clone)").GetComponent<SpriteRenderer>().color = new Color(1.0f, 1.0f, 1.0f, .5f * (1.0f + Mathf.Cos(timer)));
+        }
+
         //Replaces the start prompt with the menu whenever any input is received
         if (currentMenu == MenuState.startPrompt && Input.anyKeyDown)
         {
+            timer = 0.0f;
             currentMenu = MenuState.menu;
             Instantiate(menuButtons);
             Destroy(GameObject.Find("StartPrompt(Clone)"));
@@ -48,6 +63,8 @@ public class MenuScript : MonoBehaviour
         {
             currentMenu = MenuState.menu;
             Instantiate(menuButtons);
+            Destroy(GameObject.Find("Credits(Clone)"));
+            Destroy(GameObject.Find("Options(Clone)"));
         }
 
         //Prompts the user with quit options when they attempt to quit
