@@ -223,9 +223,8 @@ public class Manager : MonoBehaviour {
                         if (beatmapTimes[currentBeat] <= songTimer + hitTime && beatmapTimes[currentBeat] >= songTimer - bottomTime)
                         {
                             beatHit = true;
-                            hitItems[currentBeat].GetComponent<Renderer>().material.color = Color.clear;
-                            currentBeat++;
                             updateCombo();
+                            currentBeat++;
 
                         }
                         else
@@ -288,6 +287,7 @@ public class Manager : MonoBehaviour {
         {
             comboCount++;
             score += percentPerHit;
+            hitItems[currentBeat].GetComponent<SpriteRenderer>().color = Color.green;
 
             //Update the score text
             scoreText.text = score.ToString("f2") + "%";
@@ -297,7 +297,7 @@ public class Manager : MonoBehaviour {
         {
             //Reset the combo and give feedback
             comboCount = 0;
-            hitItems[currentBeat].GetComponent<Renderer>().material.color = Color.clear; // change to a color if beat misses. Only clear color works right now oddly.
+            hitItems[currentBeat].GetComponent<SpriteRenderer>().color = Color.red;
         }
         //Update the combo text
         comboText.text = "Combo: " + comboCount;
