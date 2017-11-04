@@ -24,7 +24,7 @@ public class Manager : MonoBehaviour {
     float percentPerHit; // to calculate a more easy to recognize score, based on % hit
 
     //Audio manager
-    AudioManager aManager;
+    public AudioManager aManager;
 
     public Canvas canvas;
     public Camera mainCamera;
@@ -33,7 +33,6 @@ public class Manager : MonoBehaviour {
     public RectTransform UICircle;
     public Text comboText;
     public Text scoreText;
-    public GameObject restartButton;
     public GameObject note;
     //live beatmap
     List<int> beatmap;
@@ -50,14 +49,14 @@ public class Manager : MonoBehaviour {
     NoteRecorder recorder; 
 
     //Enum for the game state
-    enum gameState
+    public enum gameState
     {
         Paused,
         InGame,
         GameEnd
     }
 
-    gameState currState;
+    public gameState currState;
     // Use this for initialization
     void Start () {
         song = GetComponent<Song1>();
@@ -242,7 +241,7 @@ public class Manager : MonoBehaviour {
                 if (currentBeat >= beatmap.Count)
                 {
                     currState = gameState.GameEnd;
-                    restartButton.SetActive(true);
+                    Instantiate(gameObject.GetComponent<PauseGameOver>().endScreen);
                 }
             }
 
@@ -253,6 +252,7 @@ public class Manager : MonoBehaviour {
                 {
                     currState = gameState.Paused;
                     aManager.isPaused(true);
+                    Instantiate(gameObject.GetComponent<PauseGameOver>().pauseScreen);
                     return;
                 }
             }
