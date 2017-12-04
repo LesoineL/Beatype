@@ -29,6 +29,7 @@ public class Enemy : MonoBehaviour
     float wDirectionTime;
     float wTime;
     float cChaseTime;
+    bool chasing;
 
     //Enum for enemy states
     enum EnemyStates
@@ -37,6 +38,12 @@ public class Enemy : MonoBehaviour
         Chasing,
         Retreating,
         Idle
+    }
+
+    //Getter for the chasing property
+    public bool Chasing
+    {
+        get { return chasing; }
     }
 
 	// Use this for initialization
@@ -86,7 +93,8 @@ public class Enemy : MonoBehaviour
         }
         //-----END CHECK PUBLIC START VALUES-----
 
-        transform.position = CircularTeleportTo(playerObject.transform.position, warpRadius);
+        //transform.position = CircularTeleportTo(playerObject.transform.position, warpRadius);
+        transform.position = Vector3.zero;
 
         previousMoveVector = unitMoveVector = Vector3.zero;
         cChaseTime = 0;
@@ -115,6 +123,7 @@ public class Enemy : MonoBehaviour
             if(totalDist <= chaseRange)
             {
                 eState = EnemyStates.Chasing;
+                chasing = true;
                 timeLastChase = 0.0f;
             }
         }
@@ -167,6 +176,7 @@ public class Enemy : MonoBehaviour
             if (totalDist <= chaseRange)
             {
                 eState = EnemyStates.Chasing;
+                chasing = true;
                 timeLastChase = 0.0f;
             }
         }
@@ -192,6 +202,7 @@ public class Enemy : MonoBehaviour
             {
                 eState = EnemyStates.Retreating;
                 cChaseTime = 0;
+                chasing = false;
 
                 Vector2 randomPoint = Random.insideUnitCircle;
 
@@ -287,7 +298,7 @@ public class Enemy : MonoBehaviour
         float radian = Random.Range(0, 2.0f * Mathf.PI);
 
         //Get a point on the circle
-        Vector3 tpPoint = new Vector3(Mathf.Cos(radian) * rad, maxHeight, Mathf.Sin(radian) * rad);
+        Vector3 tpPoint = new Vector3(cPoint.x + Mathf.Cos(radian) * rad, maxHeight, cPoint.z + Mathf.Sin(radian) * rad);
 
         //Move to that point
         TeleportToPoint(tpPoint);
