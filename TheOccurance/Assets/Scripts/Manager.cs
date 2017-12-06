@@ -29,6 +29,9 @@ public class Manager : MonoBehaviour
     public float[] dRads;
     public float[] sRads;
 
+    //Marker prefab
+    public GameObject markerPrefab;
+
     //-----CONSTANTS-----
     //Default radius to detect the player
     const float DEFAULT_DRAD = 20.0f;
@@ -81,6 +84,11 @@ public class Manager : MonoBehaviour
             interPoints[0].detectRadius = DEFAULT_DRAD;
             interPoints[0].spawnRadius = DEFAULT_SRAD;
             interPoints[0].inRange = false;
+        }
+
+        for(int i = 0; i < interPoints.Length; i++)
+        {
+            GameObject.Instantiate(markerPrefab, interPoints[i].point, Quaternion.identity);
         }
 
         //Get the player object

@@ -95,6 +95,7 @@ public class Enemy : MonoBehaviour
 
         //transform.position = CircularTeleportTo(playerObject.transform.position, warpRadius);
         transform.position = Vector3.zero;
+        currentPos = transform.position;
 
         previousMoveVector = unitMoveVector = Vector3.zero;
         cChaseTime = 0;
@@ -202,7 +203,6 @@ public class Enemy : MonoBehaviour
             {
                 eState = EnemyStates.Retreating;
                 cChaseTime = 0;
-                chasing = false;
 
                 Vector2 randomPoint = Random.insideUnitCircle;
 
@@ -240,6 +240,7 @@ public class Enemy : MonoBehaviour
         if(collision.gameObject == playerObject)
         {
             eState = EnemyStates.Retreating;
+            chasing = false;
 
             Vector2 randomPoint = Random.insideUnitCircle;
 
