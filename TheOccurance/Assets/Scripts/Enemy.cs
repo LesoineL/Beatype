@@ -15,21 +15,18 @@ public class Enemy : MonoBehaviour
     public float maxHeight;  //Maximum height above the terrain it can be
     public float distanceTillDecent;  //Distance until it goes for an attack
 
-    //-----TESTING VARIABLES-----
-    public Vector3[] warpPoints;  //Points on the map that the enemy can spawn by
-    public float warpRadius;  //Distance from a warpPoint that it spawns
-    //-----END TESTING VARIABLES-----
-
     //-----PRIVATE VARIABLES-----
     Vector3 unitMoveVector;  //Normalized vector giving the direction to move on
     Vector3 previousMoveVector;  //The direction it was previously moving
     Vector3 currentPos;  //Current position of the enemy
     float timeLastChase;  //Holds the amount of time since the last chase
-    EnemyStates eState;
     float wDirectionTime;
     float wTime;
     float cChaseTime;
+    float velocity;
     bool chasing;
+    Rigidbody eBody;
+    EnemyStates eState;
 
     //Enum for enemy states
     enum EnemyStates
@@ -53,11 +50,6 @@ public class Enemy : MonoBehaviour
         if(speed < 0)
         {
             speed = 0;
-        }
-
-        if(warpRadius < 0)
-        {
-            warpRadius = 0;
         }
 
         if(chaseTime <= 0)
@@ -91,17 +83,26 @@ public class Enemy : MonoBehaviour
             playerObject.AddComponent<Rigidbody>();
             playerObject.GetComponent<Rigidbody>().useGravity = false;
         }
+
+        if (GetComponent<Rigidbody>() != null)
+        {
+            eBody = GetComponent<Rigidbody>();
+        }
+        else
+        {
+            eBody = new Rigidbody();
+        }
         //-----END CHECK PUBLIC START VALUES-----
 
         //transform.position = CircularTeleportTo(playerObject.transform.position, warpRadius);
         transform.position = Vector3.zero;
         currentPos = transform.position;
+        velocity = 0;
 
         previousMoveVector = unitMoveVector = Vector3.zero;
         cChaseTime = 0;
         eState = EnemyStates.Idle;
 	}
-	
 	// Update is called once per frame
 	void Update ()
     {
@@ -114,11 +115,15 @@ public class Enemy : MonoBehaviour
         float totalDist = distX + distY + distZ;
         float xzDist = distX + distZ;
 
+        //currentPos = transform.position;
+
         //Check the state
         //Idle state, not doing anything
         if(eState == EnemyStates.Idle)
         {
             timeLastChase += Time.deltaTime;
+
+            //eBody.AddForce(unitMoveVector * speed * -1);
 
             //Target is in range, chase it
             if(totalDist <= chaseRange)
@@ -260,11 +265,13 @@ public class Enemy : MonoBehaviour
         //Get the unit vector of the direction to move
         unitMoveVector = Vector3.Normalize(objToFollow.transform.position - currentPos);
 
+        //eBody.AddForce(unitMoveVector * speed);
+
         currentPos += unitMoveVector * Time.deltaTime * speed;
 
         GetComponent<Rigidbody>().MovePosition(currentPos);
 
-        //transform.position = currentPos;
+        transform.position = currentPos;
     }
 
     //Move towards a point
@@ -275,11 +282,13 @@ public class Enemy : MonoBehaviour
         //Get the unit vector of the direction to move
         unitMoveVector = Vector3.Normalize(point - currentPos);
 
+        //eBody.AddForce(unitMoveVector * speed);
+
         currentPos += unitMoveVector * Time.deltaTime * speed;
 
         GetComponent<Rigidbody>().MovePosition(currentPos);
 
-        //transform.position = currentPos;
+        transform.position = currentPos;
     }
 
     //Teleports the enemy to a point
@@ -299,7 +308,7 @@ public class Enemy : MonoBehaviour
         float radian = Random.Range(0, 2.0f * Mathf.PI);
 
         //Get a point on the circle
-        Vector3 tpPoint = new Vector3(cPoint.x + Mathf.Cos(radian) * rad, maxHeight, cPoint.z + Mathf.Sin(radian) * rad);
+        Vector3 tpPoint = new Vector3(cPoint.x + Mathf.Cos(radian) * rad, cPoint.y + maxHeight, cPoint.z + Mathf.Sin(radian) * rad);
 
         //Move to that point
         TeleportToPoint(tpPoint);

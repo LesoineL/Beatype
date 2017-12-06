@@ -28,6 +28,8 @@ public class Manager : MonoBehaviour
     public Vector3[] locationPoints;
     public float[] dRads;
     public float[] sRads;
+    public Terrain terrain;
+    public TerrainData tData;
 
     //Marker prefab
     public GameObject markerPrefab;
@@ -38,6 +40,12 @@ public class Manager : MonoBehaviour
 
     //Default radius to spawn the enemy
     const float DEFAULT_SRAD = 30.0f;
+
+    //-----GETTERS-----
+    public TerrainData GetTerrainData
+    {
+        get { return tData; }
+    }
 
 	// Use this for initialization
 	void Start ()
@@ -53,6 +61,9 @@ public class Manager : MonoBehaviour
             for (int i = 0; i < numPoints; i++)
             {
                 interPoints[i].point = locationPoints[i];
+
+                //Set the y values to the height of the terrain at that point + enemy max height
+                interPoints[i].point.y = tData.GetHeight((int)locationPoints[i].x, (int)locationPoints[i].z);
 
                 if(i < dRads.Length)
                 {
