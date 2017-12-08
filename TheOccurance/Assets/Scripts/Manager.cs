@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEditor.SceneManagement;
 
 public class Manager : MonoBehaviour
 {
@@ -17,11 +19,14 @@ public class Manager : MonoBehaviour
     //-----PRIVATE VARIABLES-----
     //Array of interestPoints
     interestPoint[] interPoints;
+    //Array of collectables
+    GameObject[] collectables;
     //Player object
     GameObject playerObj;
     //Enemy object
     GameObject enemyObj;
     Enemy eScript;
+    float collectedItems;
 
     //-----PUBLIC VARIABLES-----
     //Public arrays to get the information for the interestPoints
@@ -30,6 +35,7 @@ public class Manager : MonoBehaviour
     public float[] sRads;
     public Terrain terrain;
     public TerrainData tData;
+    public Canvas playerCanvas;
 
     //Marker prefab
     public GameObject markerPrefab;
@@ -45,6 +51,12 @@ public class Manager : MonoBehaviour
     public TerrainData GetTerrainData
     {
         get { return tData; }
+    }
+
+    public float CollectedItems
+    {
+        get { return collectedItems; }
+        set { collectedItems = value; }
     }
 
 	// Use this for initialization
@@ -109,13 +121,22 @@ public class Manager : MonoBehaviour
         enemyObj = GameObject.FindGameObjectWithTag("Enemy");
         //Get the enemy's script
         eScript = enemyObj.GetComponent<Enemy>();
-	}
+
+        collectables = GameObject.FindGameObjectsWithTag("Collectable");
+        playerCanvas.GetComponentInChildren<Text>().text = "Collected Items:  " + collectedItems + " / " + collectables.Length;
+    }
 	
 	// Update is called once per frame
 	void Update ()
     {
-		//Detect how far away the player is from a point
-        for(int i = 0; i < interPoints.Length; i++)
+        //Check win condition
+        if(collectedItems == collectables.Length)
+        {
+            endGame();
+        }
+
+        //Detect how far away the player is from a point
+        for (int i = 0; i < interPoints.Length; i++)
         {
             Vector3 distanceVec = playerObj.transform.position - interPoints[i].point;
             float distF = distanceVec.magnitude;
@@ -137,4 +158,17 @@ public class Manager : MonoBehaviour
 
         }
 	}
+
+    //Increases the points for collected items
+    public void IncreaseCollectedItems()
+    {
+        collectedItems++;
+        playerCanvas.GetComponentInChildren<Text>().text = "Collected Items:  " + collectedItems + " / " + collectables.Length;
+    }
+
+    //Return the game to the title screen or something
+    public void endGame()
+    {
+        EditorSceneManager.LoadScene("GameScene");
+    }
 }

@@ -13,20 +13,25 @@ public class Enemy : MonoBehaviour
     public float retreatTime;  //Time it takes to retreat after an attack
 
     public float maxHeight;  //Maximum height above the terrain it can be
+    public float maxSpeed;
+    public float maxForce;
     public float distanceTillDecent;  //Distance until it goes for an attack
 
     //-----PRIVATE VARIABLES-----
     Vector3 unitMoveVector;  //Normalized vector giving the direction to move on
     Vector3 previousMoveVector;  //The direction it was previously moving
     Vector3 currentPos;  //Current position of the enemy
+    Vector3 velocity;
+    Vector3 acceleration;
+    Vector3 forces;
     float timeLastChase;  //Holds the amount of time since the last chase
     float wDirectionTime;
     float wTime;
     float cChaseTime;
-    float velocity;
     bool chasing;
     Rigidbody eBody;
     EnemyStates eState;
+    Manager gMan;
 
     //Enum for enemy states
     enum EnemyStates
@@ -95,16 +100,20 @@ public class Enemy : MonoBehaviour
         //-----END CHECK PUBLIC START VALUES-----
 
         //transform.position = CircularTeleportTo(playerObject.transform.position, warpRadius);
-        transform.position = Vector3.zero;
+        eBody.position = Vector3.zero;
         currentPos = transform.position;
-        velocity = 0;
+        velocity = Vector3.zero;
+        acceleration = Vector3.zero;
+        forces = Vector3.zero;
 
         previousMoveVector = unitMoveVector = Vector3.zero;
         cChaseTime = 0;
         eState = EnemyStates.Idle;
+
+        gMan = GameObject.Find("GameManager").GetComponent<Manager>();
 	}
-	// Update is called once per frame
-	void Update ()
+
+    private void FixedUpdate()
     {
         //Calculate the distances on each axis
         float distX = Mathf.Abs(transform.position.x - playerObject.transform.position.x);
@@ -115,7 +124,101 @@ public class Enemy : MonoBehaviour
         float totalDist = distX + distY + distZ;
         float xzDist = distX + distZ;
 
-        //currentPos = transform.position;
+        //Get the current velocity vector
+        velocity = eBody.velocity;
+        //Magnitude of the velocity vector
+        float vMag = velocity.magnitude;
+
+        //Clear the forces vector
+        forces = Vector3.zero;
+
+        //Get the current position
+        currentPos = eBody.position;
+
+        //See if the speed is too high
+        if (vMag > maxSpeed)
+        {
+            //Add a force in the opposite direction
+            forces += unitMoveVector * (maxSpeed - vMag);
+        }
+
+        //Check states
+        //Idle
+        if (eState == EnemyStates.Idle)
+        {
+            //Come to a stop
+            if(vMag == 0)
+            {
+                return;
+            }
+            //Set the velocity to 0 since it is essentially stopped
+            else if(vMag < 0.01f)
+            {
+                velocity = Vector3.zero;
+            }
+            //Slow the enemy down to a stop
+            else
+            {
+                forces += -velocity.normalized;
+            }
+        }
+        //Chasing
+        else if(eState == EnemyStates.Chasing)
+        {
+            if (xzDist < distanceTillDecent)
+            {
+                MoveToObject(playerObject);
+            }
+            else
+            {
+                Vector3 nextPoint = eBody.position;
+                nextPoint.x -= eBody.position.x - playerObject.transform.position.x;
+                nextPoint.z -= eBody.position.z - playerObject.transform.position.z;
+
+                MoveToPoint(nextPoint);
+            }
+        }
+        //Retreating
+        else if(eState == EnemyStates.Retreating)
+        {
+            Vector3 nextPoint = eBody.position + unitMoveVector;
+
+            if (nextPoint.y > maxHeight)
+            {
+                nextPoint.y = maxHeight;
+            }
+
+            MoveToPoint(nextPoint);
+        }
+
+        //Keep from touching the ground
+        if(eBody.position.y < gMan.tData.GetHeight((int)eBody.position.x, (int)eBody.position.z) + 2.0f && eState != EnemyStates.Chasing)
+        {
+            eBody.AddForce(Vector3.up * 5.0f * Time.fixedDeltaTime, ForceMode.Impulse);
+        }
+        //Else keep below max height
+        else if(eBody.position.y > gMan.tData.GetHeight((int)eBody.position.x, (int)eBody.position.z) + maxHeight)
+        {
+            eBody.AddForce(-Vector3.up * 5.0f * Time.fixedDeltaTime, ForceMode.Impulse);
+        }
+
+        Vector3.ClampMagnitude(forces, maxForce);
+
+        //Apply the forces
+        eBody.AddForce(forces);
+    }
+
+    // Update is called once per frame
+    void Update ()
+    {
+        //Calculate the distances on each axis
+        float distX = Mathf.Abs(eBody.position.x - playerObject.transform.position.x);
+        float distY = Mathf.Abs(eBody.position.y - playerObject.transform.position.y);
+        float distZ = Mathf.Abs(eBody.position.z - playerObject.transform.position.z);
+
+        //Calculate the total distance
+        float totalDist = distX + distY + distZ;
+        float xzDist = distX + distZ;
 
         //Check the state
         //Idle state, not doing anything
@@ -141,41 +244,6 @@ public class Enemy : MonoBehaviour
 
             //-----TODO: Wandering
 
-            if (unitMoveVector == Vector3.zero)
-            {
-                Vector2 randomPoint = Random.insideUnitCircle;
-
-                Vector3 direction = new Vector3(randomPoint.x, 1.0f, randomPoint.y);
-
-                direction = direction.normalized;
-
-                unitMoveVector = direction;
-            }
-            else
-            {
-                if(wTime >= wDirectionTime)
-                {
-                    wTime = 0.0f;
-                    wDirectionTime = Random.Range(0.4f, 3.0f);
-                    unitMoveVector = new Vector3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
-                    unitMoveVector = unitMoveVector.normalized;
-                }
-
-                GetComponent<Rigidbody>().AddForce(unitMoveVector * 4.0f);
-            }
-            currentPos = transform.position;
-
-            if(currentPos.y > maxHeight)
-            {
-                currentPos.y = maxHeight;
-                transform.position = currentPos;
-            }
-            else if(currentPos.y < 2.0f)
-            {
-                currentPos.y = 2.0f;
-                transform.position = currentPos;
-            }
-
             //----------
 
             //Target is in range, chase it
@@ -190,19 +258,6 @@ public class Enemy : MonoBehaviour
         else if(eState == EnemyStates.Chasing)
         {
             cChaseTime += Time.deltaTime;
-
-            if(xzDist < distanceTillDecent)
-            {
-                MoveToObject(playerObject);
-            }
-            else
-            {
-                Vector3 nextPoint = transform.position;
-                nextPoint.x -= transform.position.x - playerObject.transform.position.x;
-                nextPoint.z -= transform.position.z - playerObject.transform.position.z;
-
-                MoveToPoint(nextPoint);
-            }
 
             if(cChaseTime >= chaseTime && xzDist > distanceTillDecent)
             {
@@ -223,14 +278,10 @@ public class Enemy : MonoBehaviour
         {
             timeLastChase += Time.deltaTime;
 
-            Vector3 nextPoint = transform.position + unitMoveVector;
-
-            if(nextPoint.y > maxHeight)
+            if(chasing == true)
             {
-                nextPoint.y = maxHeight;
+                chasing = false;
             }
-
-            MoveToPoint(nextPoint);
 
             if(timeLastChase >= retreatTime)
             {
@@ -254,6 +305,8 @@ public class Enemy : MonoBehaviour
             direction = direction.normalized;
 
             unitMoveVector = direction;
+
+            gMan.endGame();
         }
     }
 
@@ -265,13 +318,13 @@ public class Enemy : MonoBehaviour
         //Get the unit vector of the direction to move
         unitMoveVector = Vector3.Normalize(objToFollow.transform.position - currentPos);
 
-        //eBody.AddForce(unitMoveVector * speed);
+        forces += unitMoveVector;
 
-        currentPos += unitMoveVector * Time.deltaTime * speed;
-
-        GetComponent<Rigidbody>().MovePosition(currentPos);
-
-        transform.position = currentPos;
+        //currentPos += unitMoveVector * Time.deltaTime * speed;
+        //
+        //GetComponent<Rigidbody>().MovePosition(currentPos);
+        //
+        //transform.position = currentPos;
     }
 
     //Move towards a point
@@ -282,13 +335,13 @@ public class Enemy : MonoBehaviour
         //Get the unit vector of the direction to move
         unitMoveVector = Vector3.Normalize(point - currentPos);
 
-        //eBody.AddForce(unitMoveVector * speed);
+        forces += unitMoveVector;
 
-        currentPos += unitMoveVector * Time.deltaTime * speed;
-
-        GetComponent<Rigidbody>().MovePosition(currentPos);
-
-        transform.position = currentPos;
+        //currentPos += unitMoveVector * Time.deltaTime * speed;
+        //
+        //GetComponent<Rigidbody>().MovePosition(currentPos);
+        //
+        //transform.position = currentPos;
     }
 
     //Teleports the enemy to a point
@@ -296,7 +349,7 @@ public class Enemy : MonoBehaviour
     {
         currentPos = point;
 
-        transform.position = point;
+        eBody.MovePosition(point);
 
         previousMoveVector = unitMoveVector = transform.forward;
     }
