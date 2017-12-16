@@ -26,7 +26,7 @@ public class Manager : MonoBehaviour
     //Enemy object
     GameObject enemyObj;
     Enemy eScript;
-    float collectedItems;
+    int collectedItems;
 
     //-----PUBLIC VARIABLES-----
     //Public arrays to get the information for the interestPoints
@@ -53,7 +53,7 @@ public class Manager : MonoBehaviour
         get { return tData; }
     }
 
-    public float CollectedItems
+    public int CollectedItems
     {
         get { return collectedItems; }
         set { collectedItems = value; }

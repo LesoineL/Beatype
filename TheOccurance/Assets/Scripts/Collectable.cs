@@ -27,7 +27,8 @@ public class Collectable : MonoBehaviour
                 {
                     if (Input.GetKeyDown(KeyCode.E))
                     {
-                        Debug.Log("COlledoahidioaeh");
+                        gMan.IncreaseCollectedItems(); 
+                        GameObject.Destroy(hit.collider.gameObject); 
                     }
                 }
             }
