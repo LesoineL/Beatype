@@ -24,17 +24,22 @@ public class Enemy : MonoBehaviour
     Vector3 velocity;
     Vector3 acceleration;
     Vector3 forces;
+
+    //Distance between player and enemy variables
+    Vector3 distanceVec;
+    float distanceMag;
+    float xZDistanceMag;
+
     float timeLastChase;  //Holds the amount of time since the last chase
     float wDirectionTime;
     float wTime;
     float cChaseTime;
-    bool chasing;
     Rigidbody eBody;
     EnemyStates eState;
     Manager gMan;
 
     //Enum for enemy states
-    enum EnemyStates
+    public enum EnemyStates
     {
         Wandering,
         Chasing,
@@ -42,10 +47,11 @@ public class Enemy : MonoBehaviour
         Idle
     }
 
-    //Getter for the chasing property
-    public bool Chasing
+    //Property for eState
+    public EnemyStates EState
     {
-        get { return chasing; }
+        get { return eState; }
+        set { eState = value; }
     }
 
 	// Use this for initialization
@@ -99,12 +105,16 @@ public class Enemy : MonoBehaviour
         }
         //-----END CHECK PUBLIC START VALUES-----
 
-        //transform.position = CircularTeleportTo(playerObject.transform.position, warpRadius);
         eBody.position = Vector3.zero;
         currentPos = transform.position;
         velocity = Vector3.zero;
         acceleration = Vector3.zero;
         forces = Vector3.zero;
+
+        //Initialize distance info
+        distanceVec = transform.position - playerObject.transform.position;
+        distanceMag = distanceVec.magnitude;
+        xZDistanceMag = distanceVec.x + distanceVec.z;
 
         previousMoveVector = unitMoveVector = Vector3.zero;
         cChaseTime = 0;
@@ -115,15 +125,6 @@ public class Enemy : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //Calculate the distances on each axis
-        float distX = Mathf.Abs(transform.position.x - playerObject.transform.position.x);
-        float distY = Mathf.Abs(transform.position.y - playerObject.transform.position.y);
-        float distZ = Mathf.Abs(transform.position.z - playerObject.transform.position.z);
-
-        //Calculate the total distance
-        float totalDist = distX + distY + distZ;
-        float xzDist = distX + distZ;
-
         //Get the current velocity vector
         velocity = eBody.velocity;
         //Magnitude of the velocity vector
@@ -159,13 +160,13 @@ public class Enemy : MonoBehaviour
             //Slow the enemy down to a stop
             else
             {
-                forces += -velocity.normalized;
+                eBody.velocity *= 0.5f;
             }
         }
         //Chasing
         else if(eState == EnemyStates.Chasing)
         {
-            if (xzDist < distanceTillDecent)
+            if (xZDistanceMag < distanceTillDecent)
             {
                 MoveToObject(playerObject);
             }
@@ -183,10 +184,7 @@ public class Enemy : MonoBehaviour
         {
             Vector3 nextPoint = eBody.position + unitMoveVector;
 
-            if (nextPoint.y > maxHeight)
-            {
-                nextPoint.y = maxHeight;
-            }
+            nextPoint.y = gMan.tData.GetHeight((int)eBody.position.x, (int)eBody.position.z) + maxHeight;
 
             MoveToPoint(nextPoint);
         }
@@ -211,28 +209,23 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update ()
     {
-        //Calculate the distances on each axis
-        float distX = Mathf.Abs(eBody.position.x - playerObject.transform.position.x);
-        float distY = Mathf.Abs(eBody.position.y - playerObject.transform.position.y);
-        float distZ = Mathf.Abs(eBody.position.z - playerObject.transform.position.z);
-
-        //Calculate the total distance
-        float totalDist = distX + distY + distZ;
-        float xzDist = distX + distZ;
+        //Recalculate distance between player and enemy
+        distanceVec = transform.position - playerObject.transform.position;
+        distanceMag = distanceVec.magnitude;
+        xZDistanceMag = distanceVec.x + distanceVec.z;
 
         //Check the state
         //Idle state, not doing anything
-        if(eState == EnemyStates.Idle)
+        if (eState == EnemyStates.Idle)
         {
             timeLastChase += Time.deltaTime;
 
             //eBody.AddForce(unitMoveVector * speed * -1);
 
             //Target is in range, chase it
-            if(totalDist <= chaseRange)
+            if(distanceMag <= chaseRange)
             {
                 eState = EnemyStates.Chasing;
-                chasing = true;
                 timeLastChase = 0.0f;
             }
         }
@@ -247,10 +240,9 @@ public class Enemy : MonoBehaviour
             //----------
 
             //Target is in range, chase it
-            if (totalDist <= chaseRange)
+            if (distanceMag <= chaseRange)
             {
                 eState = EnemyStates.Chasing;
-                chasing = true;
                 timeLastChase = 0.0f;
             }
         }
@@ -259,7 +251,7 @@ public class Enemy : MonoBehaviour
         {
             cChaseTime += Time.deltaTime;
 
-            if(cChaseTime >= chaseTime && xzDist > distanceTillDecent)
+            if(cChaseTime >= chaseTime && xZDistanceMag > distanceTillDecent)
             {
                 eState = EnemyStates.Retreating;
                 cChaseTime = 0;
@@ -276,14 +268,22 @@ public class Enemy : MonoBehaviour
         //Retreating state, moving away from where it just attacked the player
         else if(eState == EnemyStates.Retreating)
         {
-            timeLastChase += Time.deltaTime;
-
-            if(chasing == true)
+            if(cChaseTime != 0)
             {
-                chasing = false;
+                cChaseTime = 0;
+
+                Vector2 randomPoint = Random.insideUnitCircle;
+
+                Vector3 direction = new Vector3(randomPoint.x, 1.0f, randomPoint.y);
+
+                direction = direction.normalized;
+
+                unitMoveVector = direction;
             }
 
-            if(timeLastChase >= retreatTime)
+            timeLastChase += Time.deltaTime;
+
+            if (timeLastChase >= retreatTime)
             {
                 eState = EnemyStates.Idle;
             }
@@ -296,7 +296,6 @@ public class Enemy : MonoBehaviour
         if(collision.gameObject == playerObject)
         {
             eState = EnemyStates.Retreating;
-            chasing = false;
 
             Vector2 randomPoint = Random.insideUnitCircle;
 
