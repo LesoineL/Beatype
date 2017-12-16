@@ -54,7 +54,21 @@ public class Collectable : MonoBehaviour
                             currImage.texture = collect2;
                             currImage.enabled = true;
                         }
-
+                        else if (hit.collider.name == "collect3")
+                        {
+                            currImage.texture = collect3;
+                            currImage.enabled = true;
+                        }
+                        else if (hit.collider.name == "collect4")
+                        {
+                            currImage.texture = collect4;
+                            currImage.enabled = true;
+                        }
+                        else if (hit.collider.name == "collect5")
+                        {
+                            currImage.texture = collect5;
+                            currImage.enabled = true;
+                        }
                         gMan.IncreaseCollectedItems();
                         GameObject.Destroy(hit.collider.gameObject); 
                     }
