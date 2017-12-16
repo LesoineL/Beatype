@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor.SceneManagement;
+using UnityStandardAssets.Characters.FirstPerson; 
 
 public class Manager : MonoBehaviour
 {
@@ -36,6 +37,7 @@ public class Manager : MonoBehaviour
     public Terrain terrain;
     public TerrainData tData;
     public Canvas playerCanvas;
+    public bool isPaused; 
 
     //Marker prefab
     public GameObject markerPrefab;
@@ -124,39 +126,49 @@ public class Manager : MonoBehaviour
 
         collectables = GameObject.FindGameObjectsWithTag("Collectable");
         playerCanvas.GetComponentInChildren<Text>().text = "Collected Items:  " + collectedItems + " / " + collectables.Length;
+        isPaused = false; 
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
-        //Check win condition
-        if(collectedItems == collectables.Length)
+        if (isPaused) Time.timeScale = 0; // Game paused  add code in this if statement for a pause menu 
+        else Time.timeScale = 1; // game not paused 
+        if (Input.GetKeyDown(KeyCode.Escape)) // toggle pause 
         {
-            endGame();
+            isPaused = !isPaused;
+            playerObj.GetComponent<FirstPersonController>().enabled = !playerObj.GetComponent<FirstPersonController>().enabled; 
         }
 
-        //Detect how far away the player is from a point
-        for (int i = 0; i < interPoints.Length; i++)
-        {
-            Vector3 distanceVec = playerObj.transform.position - interPoints[i].point;
-            float distF = distanceVec.magnitude;
-
-            if(distF < interPoints[i].detectRadius && interPoints[i].inRange == false)
+            //Check win condition
+            if (collectedItems == collectables.Length)
             {
-                interPoints[i].inRange = true;
+                endGame();
+            }
 
-                if (eScript.Chasing == false)
+            //Detect how far away the player is from a point
+            for (int i = 0; i < interPoints.Length; i++)
+            {
+                Vector3 distanceVec = playerObj.transform.position - interPoints[i].point;
+                float distF = distanceVec.magnitude;
+
+                if (distF < interPoints[i].detectRadius && interPoints[i].inRange == false)
                 {
-                    eScript.CircularTeleportTo(interPoints[i].point, interPoints[i].spawnRadius);
-                }
-                
-            }
-            else if(distF > interPoints[i].detectRadius && interPoints[i].inRange == true)
-            {
-                interPoints[i].inRange = false;
-            }
+                    interPoints[i].inRange = true;
 
-        }
+                    if (eScript.Chasing == false)
+                    {
+                        eScript.CircularTeleportTo(interPoints[i].point, interPoints[i].spawnRadius);
+                    }
+
+                }
+                else if (distF > interPoints[i].detectRadius && interPoints[i].inRange == true)
+                {
+                    interPoints[i].inRange = false;
+                }
+
+            }
+        
 	}
 
     //Increases the points for collected items

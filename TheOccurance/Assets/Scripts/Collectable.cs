@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI; 
 
 public class Collectable : MonoBehaviour
 {
@@ -8,10 +9,21 @@ public class Collectable : MonoBehaviour
     Vector3 foward;
     RaycastHit hit;
 
-	// Use this for initialization
-	void Start ()
+    public Canvas canvas;
+    RawImage currImage; 
+    public Texture2D collect0;
+    public Texture2D collect1;
+    public Texture2D collect2;
+    public Texture2D collect3;
+    public Texture2D collect4;
+    public Texture2D collect5;
+
+    // Use this for initialization
+    void Start ()
     {
         gMan = GameObject.Find("GameManager").GetComponent<Manager>();
+        currImage = canvas.GetComponent<RawImage>();
+        currImage.enabled = false; 
     }
 	
 	// Update is called once per frame
@@ -27,13 +39,32 @@ public class Collectable : MonoBehaviour
                 {
                     if (Input.GetKeyDown(KeyCode.E))
                     {
-                        gMan.IncreaseCollectedItems(); 
+                        if(hit.collider.name == "collect0")
+                        {
+                            currImage.texture = collect0;
+                            currImage.enabled = true;
+                        }
+                        else if (hit.collider.name == "collect1")
+                        {
+                            currImage.texture = collect1;
+                            currImage.enabled = true;
+                        }
+                        else if (hit.collider.name == "collect2")
+                        {
+                            currImage.texture = collect2;
+                            currImage.enabled = true;
+                        }
+
+                        gMan.IncreaseCollectedItems();
                         GameObject.Destroy(hit.collider.gameObject); 
                     }
                 }
             }
         }
+        else if(Input.GetKeyDown(KeyCode.E))
+        {
+            currImage.enabled = false; 
+        }
 	}
-
 
 }
