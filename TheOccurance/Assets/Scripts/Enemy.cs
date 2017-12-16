@@ -105,7 +105,6 @@ public class Enemy : MonoBehaviour
         }
         //-----END CHECK PUBLIC START VALUES-----
 
-        //transform.position = CircularTeleportTo(playerObject.transform.position, warpRadius);
         eBody.position = Vector3.zero;
         currentPos = transform.position;
         velocity = Vector3.zero;
@@ -185,10 +184,7 @@ public class Enemy : MonoBehaviour
         {
             Vector3 nextPoint = eBody.position + unitMoveVector;
 
-            if (nextPoint.y > maxHeight)
-            {
-                nextPoint.y = maxHeight;
-            }
+            nextPoint.y = gMan.tData.GetHeight((int)eBody.position.x, (int)eBody.position.z) + maxHeight;
 
             MoveToPoint(nextPoint);
         }
