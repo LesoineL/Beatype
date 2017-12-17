@@ -151,7 +151,7 @@ public class Manager : MonoBehaviour
 
         //Get the player object
         playerObj = GameObject.FindGameObjectWithTag("Player");
-        playerSource = playerObj.GetComponent<AudioSource>();
+        playerSource = playerObj.GetComponents<AudioSource>()[1];  //The second audio source
 
         //Get the enemy object
         enemyObj = GameObject.FindGameObjectWithTag("Enemy");
