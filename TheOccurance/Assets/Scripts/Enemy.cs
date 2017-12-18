@@ -355,17 +355,20 @@ public class Enemy : MonoBehaviour
         //Update time
         timeSinceLastPlay += Time.deltaTime;
 
-        //Update frequency to play the sound
-        Mathf.Clamp(frequency = distanceMag / 10.0f, 0.1f, 10.0f);
-
-        //Check if it needs to play the sound effect
-        if(timeSinceLastPlay >= frequency)
+        if(distanceMag < 40.0f)
         {
-            timeSinceLastPlay = 0;
+            //Update frequency to play the sound
+            Mathf.Clamp(frequency = distanceMag / 20.0f, 0.1f, 10.0f);
 
-            //Play sound effect
-            //Debug.Log("bubump");
-            gMan.PlayerSource.PlayOneShot(soundEffect);
+            //Check if it needs to play the sound effect
+            if (timeSinceLastPlay >= frequency)
+            {
+                timeSinceLastPlay = 0;
+
+                //Play sound effect
+                //Debug.Log("bubump");
+                gMan.PlayerSource.PlayOneShot(soundEffect);
+            }
         }
     }
 
