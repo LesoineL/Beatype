@@ -127,10 +127,10 @@ public class Manager : MonoBehaviour
             interPoints[0].inRange = false;
         }
 
-        for(int i = 0; i < interPoints.Length; i++)
-        {
-            GameObject.Instantiate(markerPrefab, interPoints[i].point, Quaternion.identity);
-        }
+        //for(int i = 0; i < interPoints.Length; i++)
+        //{
+        //    GameObject.Instantiate(markerPrefab, interPoints[i].point, Quaternion.identity);
+        //}
 
         //Safe point setup
         if(safeDistance <= 0)
