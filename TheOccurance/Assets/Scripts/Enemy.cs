@@ -16,6 +16,7 @@ public class Enemy : MonoBehaviour
     public float maxSpeed;
     public float maxForce;
     public float distanceTillDecent;  //Distance until it goes for an attack
+    public AudioClip soundEffect;  //Sound effect played when near the player
 
     //-----PRIVATE VARIABLES-----
     Vector3 unitMoveVector;  //Normalized vector giving the direction to move on
@@ -37,6 +38,12 @@ public class Enemy : MonoBehaviour
     Rigidbody eBody;
     EnemyStates eState;
     Manager gMan;
+
+    //Sound effect variables
+    //The frequency to play the sound effect
+    float frequency = 0.0f;
+    //Time since it was last played
+    float timeSinceLastPlay;
 
     //Enum for enemy states
     public enum EnemyStates
@@ -136,13 +143,6 @@ public class Enemy : MonoBehaviour
         //Get the current position
         currentPos = eBody.position;
 
-        //See if the speed is too high
-        if (vMag > maxSpeed)
-        {
-            //Add a force in the opposite direction
-            forces += unitMoveVector * (maxSpeed - vMag);
-        }
-
         //Check states
         //Idle
         if (eState == EnemyStates.Idle)
@@ -192,18 +192,21 @@ public class Enemy : MonoBehaviour
         //Keep from touching the ground
         if(eBody.position.y < gMan.tData.GetHeight((int)eBody.position.x, (int)eBody.position.z) + 2.0f && eState != EnemyStates.Chasing)
         {
-            eBody.AddForce(Vector3.up * 5.0f * Time.fixedDeltaTime, ForceMode.Impulse);
+            eBody.AddForce(Vector3.up * 2.0f * Time.fixedDeltaTime, ForceMode.Impulse);
         }
         //Else keep below max height
         else if(eBody.position.y > gMan.tData.GetHeight((int)eBody.position.x, (int)eBody.position.z) + maxHeight)
         {
-            eBody.AddForce(-Vector3.up * 5.0f * Time.fixedDeltaTime, ForceMode.Impulse);
+            eBody.AddForce(-Vector3.up * 2.0f * Time.fixedDeltaTime, ForceMode.Impulse);
         }
 
         Vector3.ClampMagnitude(forces, maxForce);
 
         //Apply the forces
         eBody.AddForce(forces);
+
+        //clamp velocity
+        Vector3.ClampMagnitude(eBody.velocity, maxSpeed);
     }
 
     // Update is called once per frame
@@ -214,13 +217,16 @@ public class Enemy : MonoBehaviour
         distanceMag = distanceVec.magnitude;
         xZDistanceMag = distanceVec.x + distanceVec.z;
 
+        eBody.angularVelocity = Vector3.zero;
+
+        //Update to see if it needs to play the sound effect
+        UpdateNearSound();
+
         //Check the state
         //Idle state, not doing anything
         if (eState == EnemyStates.Idle)
         {
             timeLastChase += Time.deltaTime;
-
-            //eBody.AddForce(unitMoveVector * speed * -1);
 
             //Target is in range, chase it
             if(distanceMag <= chaseRange)
@@ -317,13 +323,7 @@ public class Enemy : MonoBehaviour
         //Get the unit vector of the direction to move
         unitMoveVector = Vector3.Normalize(objToFollow.transform.position - currentPos);
 
-        forces += unitMoveVector;
-
-        //currentPos += unitMoveVector * Time.deltaTime * speed;
-        //
-        //GetComponent<Rigidbody>().MovePosition(currentPos);
-        //
-        //transform.position = currentPos;
+        forces += unitMoveVector * speed;
     }
 
     //Move towards a point
@@ -334,13 +334,7 @@ public class Enemy : MonoBehaviour
         //Get the unit vector of the direction to move
         unitMoveVector = Vector3.Normalize(point - currentPos);
 
-        forces += unitMoveVector;
-
-        //currentPos += unitMoveVector * Time.deltaTime * speed;
-        //
-        //GetComponent<Rigidbody>().MovePosition(currentPos);
-        //
-        //transform.position = currentPos;
+        forces += unitMoveVector * speed;
     }
 
     //Teleports the enemy to a point
@@ -351,6 +345,28 @@ public class Enemy : MonoBehaviour
         eBody.MovePosition(point);
 
         previousMoveVector = unitMoveVector = transform.forward;
+
+        eBody.velocity = Vector3.zero;
+    }
+
+    //Plays a sound effect the closer to the target that it is
+    void UpdateNearSound()
+    {
+        //Update time
+        timeSinceLastPlay += Time.deltaTime;
+
+        //Update frequency to play the sound
+        Mathf.Clamp(frequency = distanceMag / 10.0f, 0.1f, 10.0f);
+
+        //Check if it needs to play the sound effect
+        if(timeSinceLastPlay >= frequency)
+        {
+            timeSinceLastPlay = 0;
+
+            //Play sound effect
+            //Debug.Log("bubump");
+            gMan.PlayerSource.PlayOneShot(soundEffect);
+        }
     }
 
     //Teleports the enemy to a random point of radius rad around the center cPoint
