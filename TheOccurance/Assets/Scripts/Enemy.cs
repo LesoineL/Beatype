@@ -112,7 +112,7 @@ public class Enemy : MonoBehaviour
         }
         //-----END CHECK PUBLIC START VALUES-----
 
-        eBody.position = Vector3.zero;
+        eBody.position = new Vector3(500.0f, 20.0f, 500.0f);
         currentPos = transform.position;
         velocity = Vector3.zero;
         acceleration = Vector3.zero;

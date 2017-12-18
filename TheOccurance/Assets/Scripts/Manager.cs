@@ -257,7 +257,7 @@ public class Manager : MonoBehaviour
         //Text fade
         if (Time.timeSinceLevelLoad > 3.0f)
         {
-            canvasTexts[0].CrossFadeAlpha(0.0f, 1.0f, false);
+            canvasTexts[1].CrossFadeAlpha(0.0f, 1.0f, false);
         }
 	}
 
