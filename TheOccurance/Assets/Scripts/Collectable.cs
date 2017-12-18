@@ -23,7 +23,7 @@ public class Collectable : MonoBehaviour
     {
         gMan = GameObject.Find("GameManager").GetComponent<Manager>();
         currImage = canvas.GetComponent<RawImage>();
-        currImage.enabled = false; 
+        currImage.enabled = false;
     }
 	
 	// Update is called once per frame
@@ -31,7 +31,7 @@ public class Collectable : MonoBehaviour
     {
         foward = transform.TransformDirection(Vector3.forward);
 
-        if(Physics.Raycast(transform.position, foward,out hit, 1.75f))
+        if(Physics.Raycast(transform.position  , foward,out hit, 1.75f))
         {
             if (hit.collider != null)
             {
