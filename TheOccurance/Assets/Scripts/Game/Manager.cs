@@ -271,6 +271,6 @@ public class Manager : MonoBehaviour
     //Return the game to the title screen or something
     public void endGame()
     {
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("TitleScreen");
     }
 }
