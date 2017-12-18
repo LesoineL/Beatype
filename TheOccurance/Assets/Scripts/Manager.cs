@@ -28,6 +28,7 @@ public class Manager : MonoBehaviour
     //Enemy object
     GameObject enemyObj;
     Enemy eScript;
+    AudioSource playerSource;  //Player audio source
     int collectedItems;
     Text[] canvasTexts;
     bool playerIsSafe;
@@ -63,6 +64,11 @@ public class Manager : MonoBehaviour
     public TerrainData GetTerrainData
     {
         get { return tData; }
+    }
+
+    public AudioSource PlayerSource
+    {
+        get { return playerSource; }
     }
 
     public int CollectedItems
@@ -145,6 +151,7 @@ public class Manager : MonoBehaviour
 
         //Get the player object
         playerObj = GameObject.FindGameObjectWithTag("Player");
+        playerSource = playerObj.GetComponents<AudioSource>()[1];  //The second audio source
 
         //Get the enemy object
         enemyObj = GameObject.FindGameObjectWithTag("Enemy");
@@ -180,13 +187,26 @@ public class Manager : MonoBehaviour
             Vector3 distanceVec = playerObj.transform.position - interPoints[i].point;
             float distF = distanceVec.magnitude;
 
-            if (distF < interPoints[i].detectRadius && interPoints[i].inRange == false)
+            if (distF < interPoints[i].detectRadius)
             {
-                interPoints[i].inRange = true;
+                if(interPoints[i].inRange == false)
+                {
+                    interPoints[i].inRange = true;
+                }
 
+                //Check if the enemy is already chasing the player
                 if (eScript.EState != Enemy.EnemyStates.Chasing)
                 {
-                    eScript.CircularTeleportTo(interPoints[i].point, interPoints[i].spawnRadius);
+                    distanceVec = enemyObj.transform.position - interPoints[i].point;
+                    distF = distanceVec.magnitude;
+
+                    //Check if the enemy needs to be teleported near the player
+                    if(distF > interPoints[i].spawnRadius)
+                    {
+                        eScript.CircularTeleportTo(interPoints[i].point, interPoints[i].spawnRadius);
+                    }
+
+                    eScript.EState = Enemy.EnemyStates.Chasing;
                 }
 
             }
