@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEditor.SceneManagement;
-using UnityStandardAssets.Characters.FirstPerson; 
+using UnityStandardAssets.Characters.FirstPerson;
+using UnityEngine.SceneManagement;
 
 public class Manager : MonoBehaviour
 {
@@ -271,6 +271,6 @@ public class Manager : MonoBehaviour
     //Return the game to the title screen or something
     public void endGame()
     {
-        EditorSceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("GameScene");
     }
 }
